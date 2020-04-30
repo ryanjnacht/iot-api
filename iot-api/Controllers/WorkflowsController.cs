@@ -11,6 +11,10 @@ namespace iot_api.Controllers
     [Route("workflows")]
     public class WorkflowsController : ControllerBase
     {
+        //TODO: ability to stop a running workflow
+        //TODO: return workflow output
+        //TODO: access keys
+
         [HttpPost]
         public JObject PostWorkflow([FromBody] JObject body)
         {
@@ -44,12 +48,9 @@ namespace iot_api.Controllers
             return jArray;
         }
 
-        //todo: add access keys
         [HttpGet("{*url}", Order = int.MaxValue)]
         public JObject CatchAll()
         {
-            //TODO: return workflow output?
-
             var route = Request.Path.Value;
 
             if (!route.EndsWith("run") && !route.EndsWith("run/"))
@@ -73,7 +74,7 @@ namespace iot_api.Controllers
             {
                 workflowObj.Run();
                 Response.StatusCode = 200;
-                var jObj = new JObject {{"status", "ok"}};
+                var jObj = new JObject {{"status", "completed"}};
                 return jObj;
             }
             catch (Exception ex)

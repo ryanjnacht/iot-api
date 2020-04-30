@@ -11,10 +11,13 @@ namespace iot_api.Workflows
     public class WorkflowAction
     {
         private readonly List<IDevice> _devices;
+        private readonly string _workflowId;
         private readonly List<WorkflowActionRule> _workflowRules;
 
-        public WorkflowAction(JToken json)
+        public WorkflowAction(string workflowId, JToken json)
         {
+            _workflowId = workflowId;
+
             Fields = json.ToObject<Dictionary<string, dynamic>>();
 
             _workflowRules = new List<WorkflowActionRule>();
@@ -26,15 +29,17 @@ namespace iot_api.Workflows
             if (Fields.GetValue<JArray>("devices") != null)
                 foreach (var j in Fields.GetValue<JArray>("devices"))
                 {
-                    var id = j["id"]?.ToString();
-                    var deviceObj = DeviceRepository.Get(id);
+                    var deviceId = j["id"]?.ToString();
+                    var deviceObj = DeviceRepository.Get(deviceId);
 
                     if (deviceObj == default(IDevice))
-                        throw new Exception($"Could not find the workflow action device: '{id}'");
+                        throw new Exception($"{FriendlyName} Could not find the workflow action device: '{deviceId}'");
 
                     _devices.Add(deviceObj);
                 }
         }
+
+        private string FriendlyName => $"[Workflow ({_workflowId}), Workflow Action ({Id.ToLower()})]";
 
         private Dictionary<string, dynamic> Fields { get; }
 
@@ -54,7 +59,7 @@ namespace iot_api.Workflows
             jObj.Remove("devices");
 
             var deviceArrayObj = new JArray();
-            
+
             foreach (var deviceObj in _devices)
                 deviceArrayObj.Add(new JObject
                 {
@@ -67,7 +72,7 @@ namespace iot_api.Workflows
             jObj.Remove("rules");
 
             var ruleArrayObj = new JArray();
-            
+
             foreach (var ruleObj in _workflowRules)
                 ruleArrayObj.Add(new JObject
                 {
@@ -83,11 +88,11 @@ namespace iot_api.Workflows
         {
             if (_workflowRules.Count == 0)
             {
-                Console.WriteLine($"[Workflow ({Id})] has no rules set, running workflow!");
+                Console.WriteLine($"{FriendlyName} has no rules set, defaulting to allow");
                 return true;
             }
 
-            Console.WriteLine($"[Workflow ({Id})] running rules...");
+            Console.WriteLine($"{FriendlyName} evaluating rules...");
 
             var allowed = false;
             var disallowed = false;
@@ -110,23 +115,23 @@ namespace iot_api.Workflows
 
                 if (disallowed && !ruleAllowed)
                 {
-                    Console.WriteLine($"[Workflow ({Id})] disallowed by rule: {workflowRule.RuleId}");
+                    Console.WriteLine($"{FriendlyName} disallowed by rule: {workflowRule.RuleId}");
                     return false;
                 }
 
                 if (!ruleAllowed) continue;
 
-                Console.WriteLine($"[Workflow ({Id})] allowed by rule: {workflowRule.RuleId}");
+                Console.WriteLine($"{FriendlyName} allowed by rule: {workflowRule.RuleId}");
                 allowed = true;
             }
 
             if (allowed)
             {
-                Console.WriteLine($"[Workflow ({Id})] allowed by rules");
+                Console.WriteLine($"{FriendlyName} allowed by rules");
                 return true;
             }
 
-            Console.WriteLine($"[Workflow ({Id})] rejected: did not match any rules");
+            Console.WriteLine($"{FriendlyName} rejected: did not match any rules");
             return false;
         }
 
@@ -159,14 +164,24 @@ namespace iot_api.Workflows
                     throw new InvalidOperationException();
             }
 
+            Console.WriteLine($"{FriendlyName} running workflow action");
             t.Start();
 
-            if (Blocking)
-                while (t.IsAlive)
-                    Thread.Sleep(1);
-        }
+            if (!Blocking) return;
 
-//TODO: break actions out someplace else
+            if (Id.ToLower() == "wait")
+            {
+                var duration = Fields.GetValue<int>("duration");
+                Console.WriteLine($"{FriendlyName} waiting for {duration}s");
+            }
+            else
+            {
+                Console.WriteLine($"{FriendlyName} waiting for action to complete");
+            }
+
+            while (t.IsAlive)
+                Thread.Sleep(1);
+        }
 
         #region workflow actions
 

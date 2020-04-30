@@ -21,7 +21,7 @@ namespace iot_api.Workflows
             foreach (var j in json["actions"])
                 try
                 {
-                    _workflowActions.Add(new WorkflowAction(j));
+                    _workflowActions.Add(new WorkflowAction(Id, j));
                 }
                 catch (Exception ex)
                 {
@@ -29,9 +29,15 @@ namespace iot_api.Workflows
                 }
         }
 
+        private string FriendlyName => $"[Workflow ({Id})]";
+
         public void Run()
         {
+            Console.WriteLine($"{FriendlyName} has {_workflowActions.Count} workflow actions. Running...");
+
             foreach (var workflowAction in _workflowActions) workflowAction.Run();
+
+            Console.WriteLine($"{FriendlyName} completed");
         }
 
         public JObject ToJObject()
