@@ -172,7 +172,7 @@ namespace iot_api.Workflows
             if (Id.ToLower() == "wait")
             {
                 var duration = Fields.GetValue<int>("duration");
-                Console.WriteLine($"{FriendlyName} waiting for {duration}s");
+                Console.WriteLine($"{FriendlyName} waiting for {duration}ms");
             }
             else
             {
