@@ -1,4 +1,5 @@
 
+
 # iot-api
 This is a dotnet core webapi project that serves as an API gateway between local IoT devices and external services. 
 
@@ -34,6 +35,16 @@ Example:
       "ipAddress": "10.9.8.197", //ip address of device
       "type": "hs1xx" //device type
     }
+
+---
+
+### {url}/devices/{deviceId}/{action}
+
+**Supported actions:**
+- turnon
+- turnoff
+- toggle
+
 ---
 
 ### {url}/rules
@@ -91,6 +102,13 @@ Note: if no rule.action is met, nothing will happen. Said another way, you must 
 - wait
   - duration (ms)
 
+---
+
+### {url}/workflows/{workflowId}/{action}
+
+**Supported actions:**
+- run
+- stop
 ---
 
 ### Examples:

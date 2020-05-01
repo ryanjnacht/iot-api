@@ -33,11 +33,28 @@ namespace iot_api.Workflows
 
         public void Run()
         {
+            WorkflowThreads.Add(Id);
             Console.WriteLine($"{FriendlyName} has {_workflowActions.Count} workflow actions. Running...");
 
-            foreach (var workflowAction in _workflowActions) workflowAction.Run();
+            foreach (var workflowAction in _workflowActions)
+            {
+                if (WorkflowThreads.IsCancelled(Id))
+                {
+                    Console.WriteLine($"{FriendlyName} workflow has been canceled");
+                    return;
+                }
 
+                workflowAction.Run();
+            }
+
+            WorkflowThreads.Remove(Id);
             Console.WriteLine($"{FriendlyName} completed");
+        }
+
+        public void Stop()
+        {
+            WorkflowThreads.Cancel(Id);
+            Console.WriteLine($"{FriendlyName} canceling workflow actions...");
         }
 
         public JObject ToJObject()

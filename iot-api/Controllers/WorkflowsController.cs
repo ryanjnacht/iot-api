@@ -1,5 +1,4 @@
-﻿using System;
-using iot_api.Repository;
+﻿using iot_api.Repository;
 using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json.Linq;
@@ -11,8 +10,6 @@ namespace iot_api.Controllers
     [Route("workflows")]
     public class WorkflowsController : ControllerBase
     {
-        //TODO: ability to stop a running workflow
-        //TODO: return workflow output
         //TODO: access keys
 
         [HttpPost]
@@ -51,37 +48,36 @@ namespace iot_api.Controllers
         [HttpGet("{*url}", Order = int.MaxValue)]
         public JObject CatchAll()
         {
-            var route = Request.Path.Value;
-
-            if (!route.EndsWith("run") && !route.EndsWith("run/"))
-            {
-                Response.StatusCode = 404;
-                return null;
-            }
-
-            var workflowId = route.Replace("/workflows/", "").Replace("/run", "");
+            var route = Request.Path.Value.ToLower().Split("/");
+            var workflowId = route[2];
+            var command = route[3];
 
             var workflowObj = WorkflowRepository.Get(workflowId);
 
             if (workflowObj == null)
             {
                 Response.StatusCode = 404;
-                var jObj = new JObject {{"route", route}};
+                var jObj = new JObject {{"route", string.Join("/", route)}};
                 return jObj;
             }
 
-            try
+            switch (command)
             {
-                workflowObj.Run();
-                Response.StatusCode = 200;
-                var jObj = new JObject {{"status", "completed"}};
-                return jObj;
-            }
-            catch (Exception ex)
-            {
-                Response.StatusCode = 500;
-                var jObj = new JObject {{"error", ex.Message}};
-                return jObj;
+                case "run":
+                {
+                    workflowObj.Run();
+                    Response.StatusCode = 200;
+                    return new JObject {{"status", "completed"}};
+                }
+                case "stop":
+                {
+                    Response.StatusCode = 200;
+                    workflowObj.Stop();
+                    return new JObject {{"status", "cancelled"}};
+                }
+                default:
+                    Response.StatusCode = 404;
+                    return new JObject {{"route", string.Join("/", route)}};
             }
         }
     }
