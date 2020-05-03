@@ -74,7 +74,7 @@ namespace iot_api.Devices
         private DeviceStatuses GetStatus()
         {
             Console.WriteLine($"[HS1xx ({Id})] - GetStatus");
-            
+
             var cmd = JsonConvert.SerializeObject(new
             {
                 system = new

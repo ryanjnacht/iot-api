@@ -47,7 +47,7 @@ namespace iot_api.Devices
 
             if (jObj["deviceStatus"] != null)
                 jObj.Remove("deviceStatus");
-            
+
             jObj.Add("deviceStatus", DeviceStatus.GetDescription());
             return jObj;
         }

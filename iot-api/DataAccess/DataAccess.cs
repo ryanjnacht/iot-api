@@ -6,7 +6,7 @@ using Newtonsoft.Json.Linq;
 namespace iot_api
 {
     //todo: env-var for backing store (memory/mongo)
-    
+
     public static class DataAccess
     {
         private static IMongoDatabase MongoDatabase => MongoClient.GetDatabase(Configuration.MongoDatabase);

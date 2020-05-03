@@ -45,7 +45,7 @@ namespace iot_api.Devices
         private DeviceStatuses GetStatus()
         {
             Console.WriteLine($"[Tasmota ({Id})] - GetStatus");
-            
+
             var uri = $"http://{IpAddress}/cm?cmnd=status";
 
             try
