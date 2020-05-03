@@ -24,7 +24,7 @@ namespace iot_api.Devices
         protected Dictionary<string, dynamic> Fields { get; }
         public string IpAddress => Fields.GetValue<string>("ipAddress");
         public string Id => Fields.GetValue<string>("id");
-        public virtual DeviceStatuses DeviceStatus { get; set; }
+        public virtual DeviceStatuses DeviceStatus => DeviceStatuses.Unknown;
 
         public virtual void TurnOn()
         {

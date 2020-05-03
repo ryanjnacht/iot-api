@@ -5,6 +5,8 @@ using Newtonsoft.Json.Linq;
 
 namespace iot_api
 {
+    //todo: env-var for backing store (memory/mongo)
+    
     public static class DataAccess
     {
         private static IMongoDatabase MongoDatabase => MongoClient.GetDatabase(Configuration.MongoDatabase);
@@ -50,6 +52,12 @@ namespace iot_api
             var collection = MongoDatabase.GetCollection<BsonDocument>(collectionName);
             var filter = Builders<BsonDocument>.Filter.Eq("id", id);
             collection.DeleteMany(filter);
+        }
+
+        public static void Clear(string collectionName)
+        {
+            var collection = MongoDatabase.GetCollection<BsonDocument>(collectionName);
+            collection.DeleteMany(_ => true);
         }
     }
 }

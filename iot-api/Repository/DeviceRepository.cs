@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using iot_api.Devices;
 using Newtonsoft.Json.Linq;
 
@@ -8,19 +9,27 @@ namespace iot_api.Repository
     public static class DeviceRepository
     {
         private const string CollectionName = "devices";
+        private static readonly string[] AllowedProperties = {"id", "type", "ipAddress"};
+        private static readonly string[] SupportedTypes = {"dummy", "tasmota", "hs1xx", "hs100", "hs110"};
 
         public static void Add(JObject json)
         {
+            //sanitize the json
+            foreach (var key in json.Properties().ToList().Where(key => !AllowedProperties.Contains(key.Name)))
+                json.Remove(key.Name);
+
+            //require an id
             var id = json["id"]?.ToString();
             if (string.IsNullOrEmpty(id))
                 throw new Exception("cannot add device: device id is required");
 
-            if(DataAccess.Get(CollectionName, id) != null)
+            //require unique id
+            if (DataAccess.Get(CollectionName, id) != null)
                 throw new Exception($"cannot add device '{id}': a device with this id already exists");
-            
-            var type = json["type"]?.ToString().ToLower();
 
-            if (string.IsNullOrEmpty(type))
+            //require a supported type
+            var type = json["type"]?.ToString().ToLower();
+            if (string.IsNullOrEmpty(type) || !SupportedTypes.Contains(type))
                 throw new Exception("cannot add device: type not specified");
 
             DataAccess.Insert(CollectionName, json);
@@ -41,7 +50,7 @@ namespace iot_api.Repository
             if (type == "hs1xx" || type == "hs100" || type == "hs110")
                 return new TPLinkSmartPlugHS1xx(json);
 
-            throw new Exception("cannot add device: unsupported type specified");
+            return new Device(json);
         }
 
         public static IDevice Get(string id)
@@ -58,6 +67,11 @@ namespace iot_api.Repository
                 deviceList.Add(Get(json));
 
             return deviceList;
+        }
+
+        public static void Clear()
+        {
+            DataAccess.Clear(CollectionName);
         }
     }
 }

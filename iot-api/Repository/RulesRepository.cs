@@ -14,10 +14,10 @@ namespace iot_api.Repository
             var id = json["id"]?.ToString();
             if (string.IsNullOrEmpty(id))
                 throw new Exception("cannot add rule: rule id is required");
-            
-            if(DataAccess.Get(CollectionName, id) != null)
+
+            if (DataAccess.Get(CollectionName, id) != null)
                 throw new Exception($"cannot add rule '{id}': a rule with this id already exists");
-            
+
             DataAccess.Insert(CollectionName, json);
         }
 
@@ -40,6 +40,11 @@ namespace iot_api.Repository
                 rulesList.Add(new Rule(json));
 
             return rulesList;
+        }
+
+        public static void Clear()
+        {
+            DataAccess.Clear(CollectionName);
         }
     }
 }

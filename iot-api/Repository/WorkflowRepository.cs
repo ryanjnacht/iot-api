@@ -14,8 +14,8 @@ namespace iot_api.Repository
             var id = json["id"]?.ToString();
             if (string.IsNullOrEmpty(id))
                 throw new Exception("cannot add workflow: workflow id is required");
-            
-            if(DataAccess.Get(CollectionName, id) != null)
+
+            if (DataAccess.Get(CollectionName, id) != null)
                 throw new Exception($"cannot add workflow '{id}': a workflow with this id already exists");
 
             DataAccess.Insert(CollectionName, json);
@@ -40,6 +40,11 @@ namespace iot_api.Repository
                 workflowList.Add(new Workflow(json));
 
             return workflowList;
+        }
+
+        public static void Clear()
+        {
+            DataAccess.Clear(CollectionName);
         }
     }
 }
