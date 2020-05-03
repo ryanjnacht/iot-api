@@ -1,5 +1,7 @@
 ﻿using iot_api.Repository;
+using iot_api.Security;
 using Microsoft.AspNetCore.Cors;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json.Linq;
 
@@ -12,8 +14,14 @@ namespace iot_api.Controllers
     {
         // POST device
         [HttpPost]
-        public JObject PostDevice([FromBody] JObject body)
+        public JObject PostDevice([FromBody] JObject body, string accessKey = null)
         {
+            if (!AccessKeyHelper.CanAccessDevices(accessKey))
+            {
+                Response.StatusCode = StatusCodes.Status401Unauthorized;
+                return null;
+            }
+
             DeviceRepository.Add(body);
 
             var id = body["id"]?.ToString();
@@ -22,8 +30,14 @@ namespace iot_api.Controllers
 
         // GET devices
         [HttpGet]
-        public JArray GetDevices()
+        public JArray GetDevices(string accessKey = null)
         {
+            if (!AccessKeyHelper.CanAccessDevices(accessKey))
+            {
+                Response.StatusCode = StatusCodes.Status401Unauthorized;
+                return null;
+            }
+
             var jArray = new JArray();
             foreach (var deviceObj in DeviceRepository.Get())
             {
@@ -36,25 +50,38 @@ namespace iot_api.Controllers
 
         // GET device
         [HttpGet("{id}")]
-        public JObject GetDevice(string id)
+        public JObject GetDevice(string id, string accessKey = null)
         {
+            if (!AccessKeyHelper.CanAccessDevice(accessKey, id))
+            {
+                Response.StatusCode = StatusCodes.Status401Unauthorized;
+                return null;
+            }
+
             var deviceObj = DeviceRepository.Get(id);
 
             if (deviceObj != null) return deviceObj.ToJObject();
 
-            Response.StatusCode = 404;
+            Response.StatusCode = StatusCodes.Status404NotFound;
             return null;
         }
 
         // GET device On
+        [HttpGet("{id}/turnOn")]
         [HttpGet("{id}/On")]
-        public JObject GetTurnOnDevice(string id)
+        public JObject GetTurnOnDevice(string id, string accessKey = null)
         {
+            if (!AccessKeyHelper.CanAccessDevice(accessKey, id))
+            {
+                Response.StatusCode = StatusCodes.Status401Unauthorized;
+                return null;
+            }
+
             var deviceObj = DeviceRepository.Get(id);
 
             if (deviceObj == null)
             {
-                Response.StatusCode = 404;
+                Response.StatusCode = StatusCodes.Status404NotFound;
                 return null;
             }
 
@@ -63,14 +90,21 @@ namespace iot_api.Controllers
         }
 
         // GET device Off
+        [HttpGet("{id}/turnOn")]
         [HttpGet("{id}/Off")]
-        public JObject GetTurnOffDevice(string id)
+        public JObject GetTurnOffDevice(string id, string accessKey = null)
         {
+            if (!AccessKeyHelper.CanAccessDevice(accessKey, id))
+            {
+                Response.StatusCode = StatusCodes.Status401Unauthorized;
+                return null;
+            }
+
             var deviceObj = DeviceRepository.Get(id);
 
             if (deviceObj == null)
             {
-                Response.StatusCode = 404;
+                Response.StatusCode = StatusCodes.Status404NotFound;
                 return null;
             }
 
@@ -80,13 +114,19 @@ namespace iot_api.Controllers
 
         // GET device Toggle
         [HttpGet("{id}/Toggle")]
-        public JObject GetToggleDevice(string id)
+        public JObject GetToggleDevice(string id, string accessKey = null)
         {
+            if (!AccessKeyHelper.CanAccessDevice(accessKey, id))
+            {
+                Response.StatusCode = StatusCodes.Status401Unauthorized;
+                return null;
+            }
+
             var deviceObj = DeviceRepository.Get(id);
 
             if (deviceObj == null)
             {
-                Response.StatusCode = 404;
+                Response.StatusCode = StatusCodes.Status404NotFound;
                 return null;
             }
 
@@ -95,12 +135,18 @@ namespace iot_api.Controllers
         }
 
         [HttpDelete("{id}")]
-        public void DeleteDevice(string id)
+        public void DeleteDevice(string id, string accessKey = null)
         {
+            if (!AccessKeyHelper.CanAccessDevices(accessKey))
+            {
+                Response.StatusCode = StatusCodes.Status401Unauthorized;
+                return;
+            }
+
             var deviceObj = DeviceRepository.Get(id);
             if (deviceObj == null)
             {
-                Response.StatusCode = 404;
+                Response.StatusCode = StatusCodes.Status404NotFound;
                 return;
             }
 

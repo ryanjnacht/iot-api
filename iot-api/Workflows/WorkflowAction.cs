@@ -103,13 +103,13 @@ namespace iot_api.Workflows
 
                 var ruleResult = workflowRule.Rule.ShouldRunRule();
 
-                if (ruleResult && workflowRule.Action == "allow")
+                if (ruleResult && workflowRule.Condition == "allow")
                     ruleAllowed = true;
 
-                if (ruleResult && workflowRule.Action == "disallow")
+                if (ruleResult && workflowRule.Condition == "disallow")
                     disallowed = true;
 
-                if (!ruleResult && workflowRule.Action == "disallow")
+                if (!ruleResult && workflowRule.Condition == "disallow")
                     //disallowed = false;
                     ruleAllowed = true;
 

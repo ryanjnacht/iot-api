@@ -1,5 +1,7 @@
 ﻿using iot_api.Repository;
+using iot_api.Security;
 using Microsoft.AspNetCore.Cors;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json.Linq;
 
@@ -10,11 +12,15 @@ namespace iot_api.Controllers
     [Route("workflows")]
     public class WorkflowsController : ControllerBase
     {
-        //TODO: access keys
-
         [HttpPost]
-        public JObject PostWorkflow([FromBody] JObject body)
+        public JObject PostWorkflow([FromBody] JObject body, string accessKey = null)
         {
+            if (!AccessKeyHelper.CanAccessWorkflows(accessKey))
+            {
+                Response.StatusCode = StatusCodes.Status401Unauthorized;
+                return null;
+            }
+
             WorkflowRepository.Add(body);
 
             var id = body["id"]?.ToString();
@@ -22,12 +28,18 @@ namespace iot_api.Controllers
         }
 
         [HttpDelete("{id}")]
-        public void DeleteWorkflow(string id)
+        public void DeleteWorkflow(string id, string accessKey = null)
         {
+            if (!AccessKeyHelper.CanAccessWorkflows(accessKey))
+            {
+                Response.StatusCode = StatusCodes.Status401Unauthorized;
+                return;
+            }
+
             var workflowObj = WorkflowRepository.Get(id);
             if (workflowObj == null)
             {
-                Response.StatusCode = 404;
+                Response.StatusCode = StatusCodes.Status404NotFound;
                 return;
             }
 
@@ -35,8 +47,14 @@ namespace iot_api.Controllers
         }
 
         [HttpGet]
-        public JArray GetWorkflows()
+        public JArray GetWorkflows(string accessKey = null)
         {
+            if (!AccessKeyHelper.CanAccessWorkflows(accessKey))
+            {
+                Response.StatusCode = StatusCodes.Status401Unauthorized;
+                return null;
+            }
+
             var jArray = new JArray();
 
             foreach (var workflowObj in WorkflowRepository.Get())
@@ -45,12 +63,30 @@ namespace iot_api.Controllers
             return jArray;
         }
 
+        [HttpGet("{id}")]
+        public JObject GetWorkflow(string id, string accessKey = null)
+        {
+            if (!AccessKeyHelper.CanAccessWorkflow(accessKey, id))
+            {
+                Response.StatusCode = StatusCodes.Status401Unauthorized;
+                return null;
+            }
+
+            return WorkflowRepository.Get(id).ToJObject();
+        }
+
         [HttpGet("{*url}", Order = int.MaxValue)]
-        public JObject CatchAll()
+        public JObject CatchAll(string accessKey = null)
         {
             var route = Request.Path.Value.ToLower().Split("/");
             var workflowId = route[2];
             var command = route[3];
+
+            if (!AccessKeyHelper.CanAccessWorkflow(accessKey, workflowId))
+            {
+                Response.StatusCode = StatusCodes.Status401Unauthorized;
+                return null;
+            }
 
             var workflowObj = WorkflowRepository.Get(workflowId);
 
@@ -66,17 +102,17 @@ namespace iot_api.Controllers
                 case "run":
                 {
                     workflowObj.Run();
-                    Response.StatusCode = 200;
+                    Response.StatusCode = StatusCodes.Status200OK;
                     return new JObject {{"status", "completed"}};
                 }
-                case "stop":
+                case "cancel":
                 {
-                    Response.StatusCode = 200;
+                    Response.StatusCode = StatusCodes.Status200OK;
                     workflowObj.Stop();
                     return new JObject {{"status", "cancelled"}};
                 }
                 default:
-                    Response.StatusCode = 404;
+                    Response.StatusCode = StatusCodes.Status404NotFound;
                     return new JObject {{"route", string.Join("/", route)}};
             }
         }

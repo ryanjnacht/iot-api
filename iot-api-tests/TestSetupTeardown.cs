@@ -17,7 +17,7 @@ namespace iot_api_tests
         public void TearDown()
         {
             DeviceRepository.Clear();
-            //AccessKeyRepository.Clear();
+            AccessKeyRepository.Clear();
             WorkflowRepository.Clear();
             RulesRepository.Clear();
         }

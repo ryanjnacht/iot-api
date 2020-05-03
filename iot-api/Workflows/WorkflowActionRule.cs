@@ -13,7 +13,7 @@ namespace iot_api.Workflows
             Fields = json.ToObject<Dictionary<string, dynamic>>();
         }
 
-        public string Action => Fields.GetValue<string>("action");
+        public string Condition => Fields.GetValue<string>("condition");
 
         public string RuleId => Fields.GetValue<string>("id");
 

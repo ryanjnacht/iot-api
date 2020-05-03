@@ -1,5 +1,7 @@
 ﻿using iot_api.Repository;
+using iot_api.Security;
 using Microsoft.AspNetCore.Cors;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json.Linq;
 
@@ -11,8 +13,14 @@ namespace iot_api.Controllers
     public class RulesController : ControllerBase
     {
         [HttpGet]
-        public JArray GetRules()
+        public JArray GetRules(string accessKey = null)
         {
+            if (!AccessKeyHelper.CanAdminRules(accessKey))
+            {
+                Response.StatusCode = StatusCodes.Status401Unauthorized;
+                return null;
+            }
+
             var jArray = new JArray();
             foreach (var ruleObj in RulesRepository.Get())
             {
@@ -24,8 +32,14 @@ namespace iot_api.Controllers
         }
 
         [HttpPost]
-        public JObject PostRule([FromBody] JObject body)
+        public JObject PostRule([FromBody] JObject body, string accessKey = null)
         {
+            if (!AccessKeyHelper.CanAdminRules(accessKey))
+            {
+                Response.StatusCode = StatusCodes.Status401Unauthorized;
+                return null;
+            }
+
             RulesRepository.Add(body);
             var id = body["id"]?.ToString();
 
@@ -33,12 +47,18 @@ namespace iot_api.Controllers
         }
 
         [HttpDelete("{id}")]
-        public void DeleteRule(string id)
+        public void DeleteRule(string id, string accessKey = null)
         {
+            if (!AccessKeyHelper.CanAdminRules(accessKey))
+            {
+                Response.StatusCode = StatusCodes.Status401Unauthorized;
+                return;
+            }
+
             var deviceObj = RulesRepository.Get(id);
             if (deviceObj == null)
             {
-                Response.StatusCode = 404;
+                Response.StatusCode = StatusCodes.Status404NotFound;
                 return;
             }
 

@@ -15,15 +15,17 @@ namespace iot_api_tests
     [TestFixture]
     public class DeviceControllerTests
     {
-        private HttpClient _client;
-        private TestServer _server;
-
         [SetUp]
         public void SetupTests()
         {
+            Environment.SetEnvironmentVariable("SECURITY", "0");
+
             _server = new TestServer(new WebHostBuilder().UseStartup<Startup>());
             _client = _server.CreateClient();
         }
+
+        private HttpClient _client;
+        private TestServer _server;
 
         [Test]
         public async Task DeviceControllerCRUDTest()
