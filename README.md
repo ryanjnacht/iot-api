@@ -8,11 +8,13 @@ The problem: I wanted to keep my IoT devices behind a walled garden but retain t
 ## Configuration
 **Environment variables**
 - SECURITY (enabled by default. set to 0 to disable)
-- MONGO_HOST (optional. default is localhost)
+- MONGO_HOST (required if you want to use mongo as a data store)
 - MONGO_PORT (optional. default is 27017)
 - MONGO_DB (optional. default is "iot-api")
 - TIMEOUT (optional. default is 2000ms)
 - TZ (optional, but strongly encouraged for time-based rules)
+
+Notes: If you do not define a MONGO_HOST, the application will keep everything in memory and nothing will be persisted across application restarts.
 
 ## Security
 Security is implemented in the form of access keys, which are to be provided to each endpoint via query string parameter (```?accessKey={accessKey}```)

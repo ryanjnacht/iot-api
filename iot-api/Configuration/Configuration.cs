@@ -12,8 +12,9 @@ namespace iot_api
         public static int WebClientTimeout = 2000;
         public static string MongoDatabase = "iot-api";
         public static bool SecurityEnabled = true;
-        private static string _mongoHost = "localhost";
+        private static string _mongoHost;
         private static int _mongoPort = 27017;
+        public static bool UseMongo => !string.IsNullOrEmpty(_mongoHost);
 
         public static MongoUrl MongoDbUrl =>
             new MongoUrlBuilder
@@ -43,6 +44,12 @@ namespace iot_api
                 int.TryParse(Environment.GetEnvironmentVariable("SECURITY"), out var val);
                 if (val == 0) SecurityEnabled = false;
             }
+
+            if (UseMongo)
+                Console.WriteLine($"[Configuration] Configured to use mongo @ {MongoDbUrl}");
+            else
+                Console.WriteLine(
+                    "[Configuration] Configured to use in-memory storage. Data will not persist across application restarts");
 
             if (!SecurityEnabled)
                 Console.WriteLine("[Configuration] Security has been disabled!");

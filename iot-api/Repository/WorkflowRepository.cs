@@ -9,26 +9,31 @@ namespace iot_api.Repository
     {
         private const string CollectionName = "workflows";
 
+        private static DataAccess _dataAccessObj;
+
+        private static DataAccess DataAccessObjObj => _dataAccessObj ??= new DataAccess(CollectionName);
+
+
         public static void Add(JObject json)
         {
             var id = json["id"]?.ToString();
             if (string.IsNullOrEmpty(id))
                 throw new Exception("cannot add workflow: workflow id is required");
 
-            if (DataAccess.Get(CollectionName, id) != null)
+            if (DataAccessObjObj.Get(id) != null)
                 throw new Exception($"cannot add workflow '{id}': a workflow with this id already exists");
 
-            DataAccess.Insert(CollectionName, json);
+            DataAccessObjObj.Insert(json);
         }
 
         public static void Delete(string id)
         {
-            DataAccess.Delete(CollectionName, id);
+            DataAccessObjObj.Delete(id);
         }
 
         public static Workflow Get(string id)
         {
-            var json = DataAccess.Get(CollectionName, id);
+            var json = DataAccessObjObj.Get(id);
             return json == null ? null : new Workflow(json);
         }
 
@@ -36,7 +41,7 @@ namespace iot_api.Repository
         {
             var workflowList = new List<Workflow>();
 
-            foreach (var json in DataAccess.Get(CollectionName))
+            foreach (var json in DataAccessObjObj.Get())
                 workflowList.Add(new Workflow(json));
 
             return workflowList;
@@ -44,7 +49,7 @@ namespace iot_api.Repository
 
         public static void Clear()
         {
-            DataAccess.Clear(CollectionName);
+            DataAccessObjObj.Clear();
         }
     }
 }

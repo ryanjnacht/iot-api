@@ -9,8 +9,14 @@ namespace iot_api.Repository
     public static class DeviceRepository
     {
         private const string CollectionName = "devices";
+
+        private static DataAccess _dataAccessObj;
+
+
         private static readonly string[] AllowedProperties = {"id", "type", "ipAddress"};
         private static readonly string[] SupportedTypes = {"dummy", "tasmota", "hs1xx", "hs100", "hs110"};
+
+        private static DataAccess DataAccessObjObj => _dataAccessObj ??= new DataAccess(CollectionName);
 
         public static void Add(JObject json)
         {
@@ -24,7 +30,7 @@ namespace iot_api.Repository
                 throw new Exception("cannot add device: device id is required");
 
             //require unique id
-            if (DataAccess.Get(CollectionName, id) != null)
+            if (DataAccessObjObj.Get(id) != null)
                 throw new Exception($"cannot add device '{id}': a device with this id already exists");
 
             //require a supported type
@@ -32,12 +38,12 @@ namespace iot_api.Repository
             if (string.IsNullOrEmpty(type) || !SupportedTypes.Contains(type))
                 throw new Exception("cannot add device: type not specified");
 
-            DataAccess.Insert(CollectionName, json);
+            DataAccessObjObj.Insert(json);
         }
 
         public static void Delete(string id)
         {
-            DataAccess.Delete(CollectionName, id);
+            DataAccessObjObj.Delete(id);
         }
 
         private static IDevice Get(JObject json)
@@ -55,7 +61,7 @@ namespace iot_api.Repository
 
         public static IDevice Get(string id)
         {
-            var json = DataAccess.Get(CollectionName, id);
+            var json = DataAccessObjObj.Get(id);
             return json == null ? null : Get(json);
         }
 
@@ -63,7 +69,7 @@ namespace iot_api.Repository
         {
             var deviceList = new List<IDevice>();
 
-            foreach (var json in DataAccess.Get(CollectionName))
+            foreach (var json in DataAccessObjObj.Get())
                 deviceList.Add(Get(json));
 
             return deviceList;
@@ -71,7 +77,7 @@ namespace iot_api.Repository
 
         public static void Clear()
         {
-            DataAccess.Clear(CollectionName);
+            DataAccessObjObj.Clear();
         }
     }
 }

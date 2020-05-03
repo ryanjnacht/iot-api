@@ -1,63 +1,43 @@
 using System.Collections.Generic;
-using MongoDB.Bson;
-using MongoDB.Driver;
 using Newtonsoft.Json.Linq;
 
 namespace iot_api
 {
-    //todo: env-var for backing store (memory/mongo)
-
-    public static class DataAccess
+    public class DataAccess : IDataAccess
     {
-        private static IMongoDatabase MongoDatabase => MongoClient.GetDatabase(Configuration.MongoDatabase);
-        private static MongoClient MongoClient => new MongoClient(Configuration.MongoDbUrl);
+        private readonly IDataAccess _dataAccessObj;
 
-        public static void Insert(string collectionName, JObject jObject)
+        public DataAccess(string collectionName)
         {
-            var document = BsonDocument.Parse(jObject.ToString());
-            MongoDatabase.GetCollection<BsonDocument>(collectionName).InsertOne(document);
+            if (Configuration.UseMongo)
+                _dataAccessObj = new MongoDataAccess(collectionName);
+            else
+                _dataAccessObj = new MemoryDataAccess(collectionName);
         }
 
-        public static JObject Get(string collectionName, string id)
+        public void Insert(JObject jObject)
         {
-            var collection = MongoDatabase.GetCollection<BsonDocument>(collectionName);
-            var filter = Builders<BsonDocument>.Filter.Eq("id", id);
-            var document = collection.Find(filter).FirstOrDefault();
-
-            if (document == null)
-                return null;
-
-            document.Remove("_id"); //
-            return JObject.Parse(document.ToString());
+            _dataAccessObj.Insert(jObject);
         }
 
-        public static IEnumerable<JObject> Get(string collectionName)
+        public JObject Get(string id)
         {
-            var collection = MongoDatabase.GetCollection<BsonDocument>(collectionName);
-            var documentList = collection.Find(_ => true).ToList();
-
-            var jObjectList = new List<JObject>();
-
-            foreach (var document in documentList)
-            {
-                document.Remove("_id"); //
-                jObjectList.Add(JObject.Parse(document.ToString()));
-            }
-
-            return jObjectList;
+            return _dataAccessObj.Get(id);
         }
 
-        public static void Delete(string collectionName, string id)
+        public IEnumerable<JObject> Get()
         {
-            var collection = MongoDatabase.GetCollection<BsonDocument>(collectionName);
-            var filter = Builders<BsonDocument>.Filter.Eq("id", id);
-            collection.DeleteMany(filter);
+            return _dataAccessObj.Get();
         }
 
-        public static void Clear(string collectionName)
+        public void Delete(string id)
         {
-            var collection = MongoDatabase.GetCollection<BsonDocument>(collectionName);
-            collection.DeleteMany(_ => true);
+            _dataAccessObj.Delete(id);
+        }
+
+        public void Clear()
+        {
+            _dataAccessObj.Clear();
         }
     }
 }

@@ -9,26 +9,31 @@ namespace iot_api.Repository
     {
         private const string CollectionName = "rules";
 
+        private static DataAccess _dataAccessObj;
+
+        private static DataAccess DataAccessObjObj => _dataAccessObj ??= new DataAccess(CollectionName);
+
+
         public static void Add(JObject json)
         {
             var id = json["id"]?.ToString();
             if (string.IsNullOrEmpty(id))
                 throw new Exception("cannot add rule: rule id is required");
 
-            if (DataAccess.Get(CollectionName, id) != null)
+            if (DataAccessObjObj.Get(id) != null)
                 throw new Exception($"cannot add rule '{id}': a rule with this id already exists");
 
-            DataAccess.Insert(CollectionName, json);
+            DataAccessObjObj.Insert(json);
         }
 
         public static void Delete(string id)
         {
-            DataAccess.Delete(CollectionName, id);
+            DataAccessObjObj.Delete(id);
         }
 
         public static Rule Get(string id)
         {
-            var json = DataAccess.Get(CollectionName, id);
+            var json = DataAccessObjObj.Get(id);
             return new Rule(json);
         }
 
@@ -36,7 +41,7 @@ namespace iot_api.Repository
         {
             var rulesList = new List<Rule>();
 
-            foreach (var json in DataAccess.Get(CollectionName))
+            foreach (var json in DataAccessObjObj.Get())
                 rulesList.Add(new Rule(json));
 
             return rulesList;
@@ -44,7 +49,7 @@ namespace iot_api.Repository
 
         public static void Clear()
         {
-            DataAccess.Clear(CollectionName);
+            DataAccessObjObj.Clear();
         }
     }
 }

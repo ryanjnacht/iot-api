@@ -9,19 +9,23 @@ namespace iot_api.Repository
     {
         private const string CollectionName = "accessKeys";
 
+        private static DataAccess _dataAccessObj;
+
+        private static DataAccess DataAccessObjObj => _dataAccessObj ??= new DataAccess(CollectionName);
+
         public static void Add(JObject json)
         {
             var id = json["id"]?.ToString();
 
-            if (DataAccess.Get(CollectionName, id) != null)
+            if (DataAccessObjObj.Get(id) != null)
                 throw new Exception($"cannot add device '{id}': access key already exists");
 
-            DataAccess.Insert(CollectionName, json);
+            DataAccessObjObj.Insert(json);
         }
 
         public static void Delete(string id)
         {
-            DataAccess.Delete(CollectionName, id);
+            DataAccessObjObj.Delete(id);
         }
 
         private static AccessKey Get(JObject json)
@@ -31,7 +35,7 @@ namespace iot_api.Repository
 
         public static AccessKey Get(string id)
         {
-            var json = DataAccess.Get(CollectionName, id);
+            var json = DataAccessObjObj.Get(id);
             return json == null ? null : Get(json);
         }
 
@@ -39,7 +43,7 @@ namespace iot_api.Repository
         {
             var accessKeyList = new List<AccessKey>();
 
-            foreach (var json in DataAccess.Get(CollectionName))
+            foreach (var json in DataAccessObjObj.Get())
                 accessKeyList.Add(Get(json));
 
             return accessKeyList;
@@ -47,7 +51,7 @@ namespace iot_api.Repository
 
         public static void Clear()
         {
-            DataAccess.Clear(CollectionName);
+            DataAccessObjObj.Clear();
         }
     }
 }
