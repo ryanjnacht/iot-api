@@ -120,8 +120,10 @@ curl -v {url}/devices/{deviceId}/on?accessKey={accessKey}
 **Rule types:**
 
 - time
-  - start_time
-  - end_time
+  - start_time (string, hh:mm)
+  - end_time (string, hh:mm)
+- dayOfWeek
+  -  days ( int[], 0-6)
 
 Example:
 ```
@@ -328,5 +330,4 @@ What I wanted to do was have the front porch camera trigger a workflow, where if
 ```
 
 ## TODO:
-- Explore additional rule types
-  - DayOfWeek
+- ?

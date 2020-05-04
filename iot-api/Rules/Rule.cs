@@ -16,24 +16,18 @@ namespace iot_api.Rules
         public string Id => Fields.GetValue<string>("id");
         public string Type => Fields.GetValue<string>("type");
 
-        public bool ShouldRunRule()
+        public bool ShouldRun()
         {
-            var type = Fields.GetValue<string>("type");
+            var type = Fields.GetValue<string>("type").ToLower();
             switch (type)
             {
                 case "time":
-                    return ShouldRunTimeRule();
+                    return TimeRule.ShouldRun(Fields);
+                case "dayofweek":
+                    return DayOfWeekRule.ShouldRun(Fields);
                 default:
                     throw new InvalidOperationException();
             }
-        }
-
-        private bool ShouldRunTimeRule()
-        {
-            var startTime = TimeSpan.Parse(Fields.GetValue<string>("start_time"));
-            var endTime = TimeSpan.Parse(Fields.GetValue<string>("end_time"));
-
-            return DateTime.Now.IsBetween(startTime, endTime);
         }
 
         public JObject ToJObject()
