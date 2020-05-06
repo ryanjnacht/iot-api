@@ -14,7 +14,6 @@ RUN dotnet publish -c Release -o /app
 FROM runtime AS final
 
 ENV TZ America/New_York
-ENV MONGO_HOST iot_api_mongo
 ENV MONGO_PORT 27017
 ENV TIMEOUT 2000
 
