@@ -1,5 +1,6 @@
 ﻿using iot_api.Repository;
 using iot_api.Security;
+using iot_api.Workflows;
 using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -21,7 +22,8 @@ namespace iot_api.Controllers
                 return null;
             }
 
-            WorkflowRepository.Add(body);
+            var workflowObj = new Workflow(body);
+            WorkflowRepository.Add(workflowObj);
 
             var id = body["id"]?.ToString();
             return WorkflowRepository.Get(id).ToJObject();
@@ -43,7 +45,7 @@ namespace iot_api.Controllers
                 return;
             }
 
-            WorkflowRepository.Delete(id);
+            WorkflowRepository.Delete(workflowObj);
         }
 
         [HttpGet]

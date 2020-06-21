@@ -4,6 +4,7 @@ using System.Text;
 using System.Threading.Tasks;
 using FluentAssertions;
 using iot_api;
+using iot_api.Configuration;
 using iot_api.Repository;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
@@ -17,15 +18,28 @@ namespace iot_api_tests
     public class AccessKeyControllerTests
     {
         [SetUp]
-        public void SetupTests()
+        public void Setup()
         {
-            AccessKeyRepository.Clear();
+            Environment.SetEnvironmentVariable("CACHING", "1");
+            Environment.SetEnvironmentVariable("SECURITY", "1");
 
-            _server = new TestServer(new WebHostBuilder().UseStartup<Startup>());
+            Configuration.Load();
+
+            _server = new TestServer(new WebHostBuilder().UseStartup<WebApiStartup>());
             _client = _server.CreateClient();
 
             _defaultAccessKey = Environment.GetEnvironmentVariable("ACCESSKEY");
             Console.WriteLine($"[TEST] using access key {_defaultAccessKey}");
+        }
+
+        //[TearDown]
+        public void TearDown()
+        {
+            DeviceRepository.Clear();
+            AccessKeyRepository.Clear();
+            WorkflowRepository.Clear();
+            RulesRepository.Clear();
+            ScheduleRepository.Clear();
         }
 
         private string _defaultAccessKey;

@@ -5,7 +5,7 @@ namespace iot_api.Security
 {
     public static class AccessKeyHelper
     {
-        private static bool UseAccessKeys => Configuration.SecurityEnabled && AccessKeyRepository.Get().Any();
+        private static bool UseAccessKeys => Configuration.Configuration.SecurityEnabled && AccessKeyRepository.Get().Any();
 
         public static bool CanAdminAccessKeys(string accessKey)
         {
@@ -74,6 +74,18 @@ namespace iot_api.Security
         }
 
         public static bool CanAdminRules(string accessKey)
+        {
+            if (!UseAccessKeys)
+                return true;
+
+            if (string.IsNullOrEmpty(accessKey))
+                return false;
+
+            var accessKeyObj = AccessKeyRepository.Get(accessKey);
+            return accessKeyObj != null && accessKeyObj.IsAdmin();
+        }
+        
+        public static bool CanAdminSchedules(string accessKey)
         {
             if (!UseAccessKeys)
                 return true;

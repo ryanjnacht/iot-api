@@ -6,9 +6,9 @@ using Microsoft.Extensions.Hosting;
 
 namespace iot_api
 {
-    public class Startup
+    public class WebApiStartup
     {
-        public Startup(IConfiguration configuration)
+        public WebApiStartup(IConfiguration configuration)
         {
             Configuration = configuration;
         }
@@ -33,8 +33,6 @@ namespace iot_api
             app.UseRouting();
             app.UseCors("default");
             app.UseEndpoints(endpoints => { endpoints.MapControllers(); });
-
-            iot_api.Configuration.Load();
         }
     }
 }

@@ -1,4 +1,5 @@
-﻿using iot_api.Repository;
+﻿using iot_api.Devices;
+using iot_api.Repository;
 using iot_api.Security;
 using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Http;
@@ -21,11 +22,12 @@ namespace iot_api.Controllers
                 Response.StatusCode = StatusCodes.Status401Unauthorized;
                 return null;
             }
+            
+            IDevice deviceObj = new Device(body);
+            DeviceRepository.Add(deviceObj);
 
-            DeviceRepository.Add(body);
-
-            var id = body["id"]?.ToString();
-            return DeviceRepository.Get(id).ToJObject();
+            deviceObj = DeviceRepository.Get(deviceObj.Id);
+            return deviceObj.ToJObject();
         }
 
         // GET devices
@@ -150,7 +152,7 @@ namespace iot_api.Controllers
                 return;
             }
 
-            DeviceRepository.Delete(id);
+            DeviceRepository.Delete(deviceObj);
         }
     }
 }

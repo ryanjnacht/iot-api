@@ -1,43 +1,63 @@
 using System.Collections.Generic;
+using System.Linq;
 using Newtonsoft.Json.Linq;
 
-namespace iot_api
+namespace iot_api.DataAccess
 {
-    public class DataAccess : IDataAccess
+    public static class DataAccess<T> where T : IDocument
     {
-        private readonly IDataAccess _dataAccessObj;
+        private static List<JObject> _documentCache;
 
-        public DataAccess(string collectionName)
+        public static void Initialize()
         {
-            if (Configuration.UseMongo)
-                _dataAccessObj = new MongoDataAccess(collectionName);
-            else
-                _dataAccessObj = new MemoryDataAccess(collectionName);
+            if (Configuration.Configuration.UseMongo && Configuration.Configuration.UseCache)
+                _documentCache = MongoProvider<T>.GetRecords();
+            
+            if(!Configuration.Configuration.UseMongo)
+                _documentCache = new List<JObject>();
         }
 
-        public void Insert(JObject jObject)
+        public static void Insert(T recordObj)
         {
-            _dataAccessObj.Insert(jObject);
+            if (Configuration.Configuration.UseMongo)
+                MongoProvider<T>.Insert(recordObj);
+
+            if (Configuration.Configuration.UseCache || !Configuration.Configuration.UseMongo)
+                _documentCache.Add(recordObj.ToJObject);
         }
 
-        public JObject Get(string id)
+        public static JObject Get(string id)
         {
-            return _dataAccessObj.Get(id);
+            if (Configuration.Configuration.UseCache || !Configuration.Configuration.UseMongo)
+                return _documentCache.FirstOrDefault(x => x["id"]?.ToString() == id);
+
+            return MongoProvider<T>.GetRecord(id);
         }
 
-        public IEnumerable<JObject> Get()
+        public static List<JObject> Get()
         {
-            return _dataAccessObj.Get();
+            if (Configuration.Configuration.UseCache || !Configuration.Configuration.UseMongo)
+                return _documentCache;
+
+            return MongoProvider<T>.GetRecords();
         }
 
-        public void Delete(string id)
+        public static void Delete(string id)
         {
-            _dataAccessObj.Delete(id);
+            if (Configuration.Configuration.UseCache || !Configuration.Configuration.UseMongo)
+                _documentCache.RemoveAll(x => x["id"]?.ToString() == id);
+
+            if (Configuration.Configuration.UseMongo)
+                MongoProvider<T>.Delete(id);
         }
 
-        public void Clear()
+        public static void Clear()
         {
-            _dataAccessObj.Clear();
+            if (Configuration.Configuration.UseCache || !Configuration.Configuration.UseMongo)
+                _documentCache.Clear();
+
+            if (Configuration.Configuration.UseMongo)
+                MongoProvider<T>.Clear();
         }
     }
 }

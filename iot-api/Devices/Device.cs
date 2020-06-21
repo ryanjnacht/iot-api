@@ -1,7 +1,9 @@
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using iot_api.DataAccess;
 using iot_api.Extensions;
+using MongoDB.Bson.Serialization.Attributes;
 using Newtonsoft.Json.Linq;
 
 namespace iot_api.Devices
@@ -21,9 +23,17 @@ namespace iot_api.Devices
             Fields = json.ToObject<Dictionary<string, dynamic>>();
         }
 
-        protected Dictionary<string, dynamic> Fields { get; }
+        [BsonElement("fields")]
+        public Dictionary<string, dynamic> Fields { get; }
         public string IpAddress => Fields.GetValue<string>("ipAddress");
-        public string Id => Fields.GetValue<string>("id");
+        
+        [BsonElement("id")]
+        public string Id
+        {
+            get => Fields.GetValue<string>("id");
+            private set => Fields?.AddOrUpdate("id", value);
+        }
+        
         public virtual DeviceStatuses DeviceStatus => DeviceStatuses.Unknown;
 
         public virtual void TurnOn()
@@ -40,6 +50,8 @@ namespace iot_api.Devices
         {
             throw new NotImplementedException();
         }
+
+        JObject IDocument.ToJObject => ToJObject();
 
         public JObject ToJObject()
         {

@@ -5,9 +5,9 @@ using System.Net.Cache;
 
 namespace iot_api.Clients
 {
-    public class WebClient
+    public static class WebClient
     {
-        private string Request(string uri, string method = "GET")
+        private static string Request(string uri, string method = "GET")
         {
             Console.WriteLine($"[WebClient ({method})] uri: {uri}");
 
@@ -18,7 +18,7 @@ namespace iot_api.Clients
             webReq.Headers.Add("Content-Encoding", "utf-8");
             webReq.CachePolicy = new RequestCachePolicy(RequestCacheLevel.NoCacheNoStore);
             webReq.KeepAlive = false;
-            webReq.Timeout = Configuration.WebClientTimeout;
+            webReq.Timeout = Configuration.Configuration.WebClientTimeout;
             webReq.ServicePoint.ConnectionLeaseTimeout = 5000;
             webReq.ServicePoint.MaxIdleTime = 5000;
             webReq.ServicePoint.Expect100Continue = false;
@@ -69,7 +69,7 @@ namespace iot_api.Clients
             }
         }
 
-        public string Get(string uri)
+        public static string Get(string uri)
         {
             return Request(uri);
         }

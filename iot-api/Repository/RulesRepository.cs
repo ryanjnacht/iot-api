@@ -1,55 +1,50 @@
-using System;
 using System.Collections.Generic;
+using iot_api.DataAccess;
 using iot_api.Rules;
-using Newtonsoft.Json.Linq;
 
 namespace iot_api.Repository
 {
     public static class RulesRepository
-    {
-        private const string CollectionName = "rules";
-
-        private static DataAccess _dataAccessObj;
-
-        private static DataAccess DataAccessObjObj => _dataAccessObj ??= new DataAccess(CollectionName);
-
-
-        public static void Add(JObject json)
+    { 
+        public static void Add(Rule ruleObj)
         {
-            var id = json["id"]?.ToString();
-            if (string.IsNullOrEmpty(id))
-                throw new Exception("cannot add rule: rule id is required");
-
-            if (DataAccessObjObj.Get(id) != null)
-                throw new Exception($"cannot add rule '{id}': a rule with this id already exists");
-
-            DataAccessObjObj.Insert(json);
+            // var id = json["id"]?.ToString();
+            // if (string.IsNullOrEmpty(id))
+            //     throw new Exception("cannot add rule: rule id is required");
+            //
+            // if (DataAccessObjObj.Get(id) != null)
+            //     throw new Exception($"cannot add rule '{id}': a rule with this id already exists");
+            //
+            // DataAccessObjObj.Insert(json);
+            DataAccess<Rule>.Insert(ruleObj);
         }
 
-        public static void Delete(string id)
+        public static void Delete(Rule ruleObj)
         {
-            DataAccessObjObj.Delete(id);
+            DataAccess<Rule>.Delete(ruleObj.Id);
         }
 
         public static Rule Get(string id)
         {
-            var json = DataAccessObjObj.Get(id);
+            var json = DataAccess<Rule>.Get(id);
             return new Rule(json);
         }
 
         public static List<Rule> Get()
         {
-            var rulesList = new List<Rule>();
+            var ruleList = new List<Rule>();
 
-            foreach (var json in DataAccessObjObj.Get())
-                rulesList.Add(new Rule(json));
+            foreach (var doc in DataAccess<Rule>.Get())
+            {
+                ruleList.Add(new Rule(doc));
+            }
 
-            return rulesList;
+            return ruleList;
         }
 
         public static void Clear()
         {
-            DataAccessObjObj.Clear();
+            DataAccess<Rule>.Clear();
         }
     }
 }

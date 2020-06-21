@@ -17,9 +17,7 @@ namespace iot_api.Devices
             Console.WriteLine($"[Tasmota ({Id})] - TurnOn");
 
             var uri = $"http://{IpAddress}/cm?cmnd=Power%20On";
-            var wc = new WebClient();
-
-            wc.Get(uri);
+            WebClient.Get(uri);
         }
 
         public override void TurnOff()
@@ -27,9 +25,7 @@ namespace iot_api.Devices
             Console.WriteLine($"[Tasmota ({Id})] - TurnOff");
 
             var uri = $"http://{IpAddress}/cm?cmnd=Power%20off";
-            var wc = new WebClient();
-
-            wc.Get(uri);
+            WebClient.Get(uri);
         }
 
         public override void Toggle()
@@ -37,9 +33,7 @@ namespace iot_api.Devices
             Console.WriteLine($"[Tasmota ({Id})] - Toggle");
 
             var uri = $"http://{IpAddress}/cm?cmnd=Power%20TOGGLE";
-            var wc = new WebClient();
-
-            wc.Get(uri);
+            WebClient.Get(uri);
         }
 
         private DeviceStatuses GetStatus()
@@ -50,8 +44,7 @@ namespace iot_api.Devices
 
             try
             {
-                var wc = new WebClient();
-                var resp = wc.Get(uri);
+                var resp = WebClient.Get(uri);
                 var jObj = JObject.Parse(resp);
 
                 var power = (int) jObj["Status"]["Power"];

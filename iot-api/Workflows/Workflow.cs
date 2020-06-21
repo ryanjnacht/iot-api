@@ -1,14 +1,15 @@
 using System;
 using System.Collections.Generic;
+using iot_api.DataAccess;
 using Newtonsoft.Json.Linq;
 
 namespace iot_api.Workflows
 {
-    public class Workflow
+    public class Workflow : IDocument
     {
         private readonly List<WorkflowAction> _workflowActions;
 
-        public readonly string Id;
+        public string Id { get; }
 
         public Workflow(JToken json)
         {
@@ -56,6 +57,8 @@ namespace iot_api.Workflows
             WorkflowThreads.Cancel(Id);
             Console.WriteLine($"{FriendlyName} canceling workflow actions...");
         }
+
+        JObject IDocument.ToJObject => ToJObject();
 
         public JObject ToJObject()
         {

@@ -1,4 +1,5 @@
 ﻿using iot_api.Repository;
+using iot_api.Rules;
 using iot_api.Security;
 using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Http;
@@ -39,11 +40,13 @@ namespace iot_api.Controllers
                 Response.StatusCode = StatusCodes.Status401Unauthorized;
                 return null;
             }
-
-            RulesRepository.Add(body);
-            var id = body["id"]?.ToString();
-
-            return RulesRepository.Get(id).ToJObject();
+            
+            var ruleObj = new Rule(body);
+            RulesRepository.Add(ruleObj);
+            return ruleObj.ToJObject();
+            
+            //var id = body["id"]?.ToString();
+            //return RulesRepository.Get(id).ToJObject();
         }
 
         [HttpDelete("{id}")]
@@ -55,14 +58,14 @@ namespace iot_api.Controllers
                 return;
             }
 
-            var deviceObj = RulesRepository.Get(id);
-            if (deviceObj == null)
+            var ruleObj = RulesRepository.Get(id);
+            if (ruleObj == null)
             {
                 Response.StatusCode = StatusCodes.Status404NotFound;
                 return;
             }
 
-            RulesRepository.Delete(id);
+            RulesRepository.Delete(ruleObj);
         }
     }
 }

@@ -1,5 +1,5 @@
-using System;
 using System.Collections.Generic;
+using iot_api.DataAccess;
 using iot_api.Security;
 using Newtonsoft.Json.Linq;
 
@@ -7,51 +7,35 @@ namespace iot_api.Repository
 {
     public static class AccessKeyRepository
     {
-        private const string CollectionName = "accessKeys";
-
-        private static DataAccess _dataAccessObj;
-
-        private static DataAccess DataAccessObjObj => _dataAccessObj ??= new DataAccess(CollectionName);
-
-        public static void Add(JObject json)
+        public static void Add(AccessKey accessKeyObj)
         {
-            var id = json["id"]?.ToString();
-
-            if (DataAccessObjObj.Get(id) != null)
-                throw new Exception($"cannot add device '{id}': access key already exists");
-
-            DataAccessObjObj.Insert(json);
+            DataAccess<AccessKey>.Insert(accessKeyObj);
         }
 
-        public static void Delete(string id)
+        public static void Delete(AccessKey accessKeyObj)
         {
-            DataAccessObjObj.Delete(id);
-        }
-
-        private static AccessKey Get(JObject json)
-        {
-            return new AccessKey(json);
+            DataAccess<AccessKey>.Delete(accessKeyObj.Id);
         }
 
         public static AccessKey Get(string id)
         {
-            var json = DataAccessObjObj.Get(id);
-            return json == null ? null : Get(json);
+            var json = DataAccess<AccessKey>.Get(id);
+            return new AccessKey(json);
         }
 
         public static IEnumerable<AccessKey> Get()
         {
             var accessKeyList = new List<AccessKey>();
 
-            foreach (var json in DataAccessObjObj.Get())
-                accessKeyList.Add(Get(json));
+            foreach (var json in DataAccess<AccessKey>.Get())
+                accessKeyList.Add(new AccessKey(json));
 
             return accessKeyList;
         }
 
         public static void Clear()
         {
-            DataAccessObjObj.Clear();
+            DataAccess<AccessKey>.Clear();
         }
     }
 }

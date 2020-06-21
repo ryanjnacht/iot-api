@@ -1,6 +1,5 @@
-using System;
 using System.Collections.Generic;
-using System.Linq;
+using iot_api.DataAccess;
 using iot_api.Devices;
 using Newtonsoft.Json.Linq;
 
@@ -8,18 +7,15 @@ namespace iot_api.Repository
 {
     public static class DeviceRepository
     {
-        private const string CollectionName = "devices";
-
-        private static DataAccess _dataAccessObj;
-
-
         private static readonly string[] AllowedProperties = {"id", "type", "ipAddress"};
         private static readonly string[] SupportedTypes = {"dummy", "tasmota", "hs1xx", "hs100", "hs110"};
 
-        private static DataAccess DataAccessObjObj => _dataAccessObj ??= new DataAccess(CollectionName);
-
-        public static void Add(JObject json)
+        public static void Add(IDevice deviceObj)
         {
+            DataAccess<IDevice>.Insert(deviceObj);
+            /*
+            
+            
             //sanitize the json
             foreach (var key in json.Properties().ToList().Where(key => !AllowedProperties.Contains(key.Name)))
                 json.Remove(key.Name);
@@ -30,7 +26,8 @@ namespace iot_api.Repository
                 throw new Exception("cannot add device: device id is required");
 
             //require unique id
-            if (DataAccessObjObj.Get(id) != null)
+            
+            if (DataAccess.DataAccess<Device>.Get(id) != null)
                 throw new Exception($"cannot add device '{id}': a device with this id already exists");
 
             //require a supported type
@@ -38,12 +35,14 @@ namespace iot_api.Repository
             if (string.IsNullOrEmpty(type) || !SupportedTypes.Contains(type))
                 throw new Exception("cannot add device: type not specified");
 
-            DataAccessObjObj.Insert(json);
+            var deviceObj = new Device(json);
+            DataAccess<Device>.Insert(deviceObj);
+            */
         }
 
-        public static void Delete(string id)
+        public static void Delete(IDevice deviceObj)
         {
-            DataAccessObjObj.Delete(id);
+            DataAccess<IDevice>.Delete(deviceObj.Id);
         }
 
         private static IDevice Get(JObject json)
@@ -61,23 +60,28 @@ namespace iot_api.Repository
 
         public static IDevice Get(string id)
         {
-            var json = DataAccessObjObj.Get(id);
-            return json == null ? null : Get(json);
+            var json = DataAccess<IDevice>.Get(id);
+            if (json == null) return null;
+
+            //var json = JObject.FromObject();
+            return Get(json);
         }
 
         public static IEnumerable<IDevice> Get()
         {
             var deviceList = new List<IDevice>();
 
-            foreach (var json in DataAccessObjObj.Get())
-                deviceList.Add(Get(json));
+            foreach (var doc in DataAccess<IDevice>.Get())
+            {
+                deviceList.Add(Get(doc));
+            }
 
             return deviceList;
         }
 
         public static void Clear()
         {
-            DataAccessObjObj.Clear();
+            DataAccess<IDevice>.Clear();
         }
     }
 }

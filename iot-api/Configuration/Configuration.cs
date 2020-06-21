@@ -1,11 +1,19 @@
 using System;
+using System.Collections.Generic;
 using System.Linq;
+using System.Resources;
+using iot_api.DataAccess;
+using iot_api.Devices;
 using iot_api.Repository;
+using iot_api.Rules;
+using iot_api.Scheduler;
 using iot_api.Security;
+using iot_api.Workflows;
+using MongoDB.Bson.Serialization;
 using MongoDB.Driver;
 using Newtonsoft.Json.Linq;
 
-namespace iot_api
+namespace iot_api.Configuration
 {
     public static class Configuration
     {
@@ -15,6 +23,8 @@ namespace iot_api
         private static string _mongoHost;
         private static int _mongoPort = 27017;
         public static bool UseMongo => !string.IsNullOrEmpty(_mongoHost);
+        public static int DeviceRetries = 10;
+        public static bool UseCache = true;
 
         public static MongoUrl MongoDbUrl =>
             new MongoUrlBuilder
@@ -45,26 +55,49 @@ namespace iot_api
                 if (val == 0) SecurityEnabled = false;
             }
 
+            if (!string.IsNullOrEmpty(Environment.GetEnvironmentVariable("DEVICE_RETRIES")))
+                int.TryParse(Environment.GetEnvironmentVariable("DEVICE_RETRIES"), out DeviceRetries);
+
+            if (!string.IsNullOrEmpty(Environment.GetEnvironmentVariable("CACHING")))
+                if (int.TryParse(Environment.GetEnvironmentVariable("CACHING"), out var val) && val == 0)
+                    UseCache = false;
+
             if (UseMongo)
                 Console.WriteLine($"[Configuration] Configured to use mongo @ {MongoDbUrl}");
             else
                 Console.WriteLine(
                     "[Configuration] Configured to use in-memory storage. Data will not persist across application restarts");
 
-            if (!SecurityEnabled)
-                Console.WriteLine("[Configuration] Security has been disabled!");
+            if (UseCache || !UseMongo)
+            {
+                DataAccess<AccessKey>.Initialize();
+                DataAccess<IDevice>.Initialize();
+                DataAccess<Rule>.Initialize();
+                DataAccess<Schedule>.Initialize();
+                DataAccess<Workflow>.Initialize();
+            }
+
+            if (!string.IsNullOrEmpty(Environment.GetEnvironmentVariable("RESET_AUTH")))
+                if (int.TryParse(Environment.GetEnvironmentVariable("RESET_AUTH"), out var val) && val == 1)
+                {
+                    Console.WriteLine($"[Configuration Reset flag set. Clearing access keys");
+                    DataAccess<AccessKey>.Clear();
+                }
 
             if (SecurityEnabled && !AccessKeyRepository.Get().Any())
             {
                 var json = new JObject {{"name", "default admin"}, {"admin", true}};
 
                 var accessKeyObj = new AccessKey(json);
-                AccessKeyRepository.Add(accessKeyObj.ToJObject());
+                AccessKeyRepository.Add(accessKeyObj);
 
                 Console.WriteLine($"[Configuration] Security is enabled. Default admin access key: {accessKeyObj.Id}");
+            }
 
-                if (isTesting)
-                    Environment.SetEnvironmentVariable("ACCESSKEY", accessKeyObj.Id);
+            if (isTesting)
+            {
+                var accessKeyObj = AccessKeyRepository.Get().First(x => x.IsAdmin());
+                Environment.SetEnvironmentVariable("ACCESSKEY", accessKeyObj.Id);
             }
         }
     }

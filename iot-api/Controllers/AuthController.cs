@@ -29,7 +29,7 @@ namespace iot_api.Controllers
             }
 
             var accessKeyObj = new AccessKey(body);
-            AccessKeyRepository.Add(accessKeyObj.ToJObject());
+            AccessKeyRepository.Add(accessKeyObj);
 
             return AccessKeyRepository.Get(accessKeyObj.Id).ToJObject();
         }
@@ -60,7 +60,7 @@ namespace iot_api.Controllers
             }
 
             var accessKeyObj = AccessKeyRepository.Get(id);
-            if (accessKeyObj != null) AccessKeyRepository.Delete(id);
+            if (accessKeyObj != null) AccessKeyRepository.Delete(accessKeyObj);
 
             Response.StatusCode = StatusCodes.Status200OK;
         }

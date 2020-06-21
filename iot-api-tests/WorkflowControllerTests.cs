@@ -5,6 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using FluentAssertions;
 using iot_api;
+using iot_api.Configuration;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.TestHost;
 using Newtonsoft.Json.Linq;
@@ -19,8 +20,9 @@ namespace iot_api_tests
         public void SetupTests()
         {
             Environment.SetEnvironmentVariable("SECURITY", "0");
+            Configuration.Load();
 
-            _server = new TestServer(new WebHostBuilder().UseStartup<Startup>());
+            _server = new TestServer(new WebHostBuilder().UseStartup<WebApiStartup>());
             _client = _server.CreateClient();
         }
 

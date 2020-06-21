@@ -1,19 +1,21 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using iot_api.DataAccess;
 using iot_api.Extensions;
+using MongoDB.Bson.Serialization.Attributes;
 using Newtonsoft.Json.Linq;
 
 namespace iot_api.Security
 {
-    public class AccessKey
+    public class AccessKey : IDocument
     {
         public AccessKey(JToken json)
         {
             Fields = json.ToObject<Dictionary<string, dynamic>>();
 
             if (string.IsNullOrEmpty(Name))
-                throw new Exception("'Name' is required");
+                throw new Exception("'name' is required");
 
             if (Devices == null)
                 Fields.AddOrUpdate("devices", new JArray());
@@ -25,19 +27,22 @@ namespace iot_api.Security
                 Id = Guid.NewGuid().ToString().Replace("-", "");
         }
 
+        [BsonElement("id")]
         public string Id
         {
             get => Fields.GetValue<string>("id");
-            private set => Fields.AddOrUpdate("id", value);
+            private set => Fields?.AddOrUpdate("id", value);
         }
+
+        JObject IDocument.ToJObject => ToJObject();
 
         private bool Admin => Fields.GetValue<bool>("admin");
         private string Name => Fields.GetValue<string>("name");
-        private JArray Devices => Fields.GetValue<JArray>("devices");
 
+        private JArray Devices => Fields.GetValue<JArray>("devices");
         private JArray Workflows => Fields.GetValue<JArray>("workflows");
 
-        private Dictionary<string, dynamic> Fields { get; }
+        [BsonElement("fields")] private Dictionary<string, dynamic> Fields { get; }
 
         public bool CanAccessDevice(string deviceId)
         {
@@ -56,6 +61,9 @@ namespace iot_api.Security
 
         public JObject ToJObject()
         {
+            return JObject.FromObject(Fields);
+            
+            /*
             JArray devices = null;
             if (JArray.FromObject(Devices).Any())
                 devices = JArray.FromObject(Devices);
@@ -74,6 +82,7 @@ namespace iot_api.Security
             };
 
             return jObj;
+            */
         }
     }
 }
