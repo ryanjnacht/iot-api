@@ -1,9 +1,10 @@
 
 
+
 # iot-api
 This is a dotnet core webapi project that serves as an API gateway between local IoT devices and external services. 
 
-The problem: I wanted to keep my IoT devices behind a walled garden but retain the ability to integrate with them from third party services such as IFTTT. I also found that most DIY IoT devices (such as the tasmota firmware) either didn't have some sort of native cloud support, or it had some cloud support that I simply didn't trust. Lastly, shelved IFTTT integrations lack finer-grain workflow, and even when building a new applet within IFTTT Platform, I was still left with solving for the walled-garden gap or lack of cloud support.
+The problem: I wanted to restrict my IoT devices from accessing the network/internet, but still be able to ingrate them with third party services such as IFTTT. I also found that most DIY IoT devices (such as the tasmota firmware) either didn't have some sort of native cloud support, or it had some cloud support that I simply didn't trust. Lastly, shelved IFTTT integrations lack finer-grain workflow, and even when building a new applet within IFTTT Platform, I was still left with solving for the walled-garden gap, lack of cloud support, or lack of trust.
 
 ## Configuration
 **Environment variables**
@@ -11,7 +12,9 @@ The problem: I wanted to keep my IoT devices behind a walled garden but retain t
 - MONGO_HOST (required if you want to use mongo as a data store)
 - MONGO_PORT (optional. default is 27017)
 - MONGO_DB (optional. default is "iot-api")
-- TIMEOUT (optional. default is 2000ms)
+- CACHING (enabled by default. disable if you plan to scale the api)
+- DEVICE_RETRIES (number of times to retry on timeout to an IoT device. default is 10)
+- TIMEOUT (optional. default is 2000ms. applies to mongo and web client calls)
 - TZ (optional, but strongly encouraged for time-based rules)
 
 Notes: If you do not define a MONGO_HOST, the application will keep everything in memory and nothing will be persisted across application restarts.
@@ -23,7 +26,9 @@ When the application starts, if no access keys are found, a default admin access
 
 Access keys should be limited to specific devices and/or workflows. Admin access keys can enumerate all resources, modify rules, and create new access keys.
 
-Granting access to a workflow is not mutually inclusive of granting access to the workflow's devices; a workflow does not require an access key to also have access to its devices in order to run.
+Granting access to a workflow is not mutually inclusive of granting access to the workflow's devices; a workflow does not require an access key to also have access to its devices in order to run. In this way, you can have an access key for a workflow that turns on a light, but that same access key cannot be used to directly interface with the same light and turn it off.
+
+To reset (clear) the access keys, set the `RESET_AUTH` env var to 1 at startup. All access keys will be cleared and a new admin access key printed to standard output.
 
 
 ## Build & Deploy
@@ -108,6 +113,26 @@ Example:
 
 ```
 curl -v {url}/devices/{deviceId}/on?accessKey={accessKey}
+```
+---
+
+### {url}/schedules
+- start_time (string, hh:mm)
+- devices (array)
+  - deviceId (string, id of device)
+  - action (string, action to take (on, off, toggle)
+
+Example:
+```
+{
+  "start_time": "19:30",
+  "devices": [
+      {
+          "deviceId": "living-room-lamp",
+          "action": "off"
+      }
+  ]
+}
 ```
 
 ---
@@ -328,6 +353,3 @@ What I wanted to do was have the front porch camera trigger a workflow, where if
   ]
 }
 ```
-
-## TODO:
-- Continued unit test coverage
