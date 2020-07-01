@@ -1,7 +1,6 @@
 using System;
 using System.Collections.Generic;
 using FluentAssertions;
-using iot_api.Devices;
 using iot_api.Scheduler;
 using NUnit.Framework;
 

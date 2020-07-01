@@ -40,11 +40,11 @@ namespace iot_api.Controllers
                 Response.StatusCode = StatusCodes.Status401Unauthorized;
                 return null;
             }
-            
+
             var ruleObj = new Rule(body);
             RulesRepository.Add(ruleObj);
             return ruleObj.ToJObject();
-            
+
             //var id = body["id"]?.ToString();
             //return RulesRepository.Get(id).ToJObject();
         }

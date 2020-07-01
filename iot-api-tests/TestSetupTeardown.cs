@@ -1,9 +1,6 @@
 using System;
-using iot_api.DataAccess;
 using iot_api.Repository;
-using iot_api.Security;
 using NUnit.Framework;
-using NUnit.Framework.Internal.Commands;
 
 namespace iot_api_tests
 {

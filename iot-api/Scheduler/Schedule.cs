@@ -12,38 +12,6 @@ namespace iot_api.Scheduler
 {
     public class Schedule : IDocument
     {
-        //[JsonProperty("days")] // public int[]? Days;
-        //private readonly int[] _days;
-        private IEnumerable<int> Days => Fields.GetValue<JArray>("days").Select(jv => (int) jv).ToList();
-
-        //[JsonProperty("devices")] // public List<SchedulerDevice> Devices;
-        //public readonly List<SchedulerDevice> Devices;
-        public IEnumerable<SchedulerDevice> Devices
-        {
-            get
-            {
-                var devices = new List<SchedulerDevice>();
-                foreach(var jObj in Fields.GetValue<JArray>("devices"))
-                {
-                    devices.Add(new SchedulerDevice
-                    {
-                        DeviceId = jObj["deviceId"]?.ToString(),
-                        Action = jObj["action"]?.ToString()
-                        
-                    });
-                }
-
-                return devices;
-            }
-        }
-
-        //[JsonProperty("start_time")] // public TimeSpan StartTime;
-        //private readonly TimeSpan _startTime;
-        private TimeSpan StartTime => TimeSpan.Parse(Fields.GetValue<string>("start_time"));
-
-        //[JsonIgnore] [BsonElement("fields")] private Dictionary<string, dynamic>? Fields { get; }
-        private Dictionary<string, dynamic> Fields { get; set; }
-
         public Schedule(string startTime, IEnumerable days, List<SchedulerDevice> devices)
         {
             var json = new JObject
@@ -53,57 +21,42 @@ namespace iot_api.Scheduler
             };
 
             if (days == null)
-            {
                 json.Add("days", new JArray());
-            }
             else
-            {
                 json.Add("days", JArray.FromObject(days));
-            }
 
             Fields = json.ToObject<Dictionary<string, dynamic>>();
-
-            //Days = Fields.GetValue<JArray>("days").Select(jv => (int) jv).ToArray();
-            //StartTime = TimeSpan.Parse(Fields.GetValue<string>("start_time")).WithoutMilliseconds();
-
-            //Devices = new List<SchedulerDevice>();
-            /*
-            foreach (var device in Fields.GetValue<JArray>("devices"))
-            {
-                var schedulerDevice = new SchedulerDevice()
-                {
-                    Action = device["action"]?.ToString(),
-                    DeviceId = device["deviceId"]?.ToString()
-                };
-                Devices.Add(schedulerDevice);
-            }
-            */
         }
 
         public Schedule(JToken json)
         {
             Fields = json.ToObject<Dictionary<string, dynamic>>();
-
-            //Days = Fields.GetValue<JArray>("days").Select(jv => (int) jv).ToArray();
-            //StartTime = TimeSpan.Parse(Fields.GetValue<string>("start_time")).WithoutMilliseconds();
-
-            //Devices = new List<SchedulerDevice>();
-            /*
-            foreach (var device in Fields.GetValue<JArray>("devices"))
-            {
-                var schedulerDevice = new SchedulerDevice()
-                {
-                    Action = device["action"]?.ToString(),
-                    DeviceId = device["deviceId"]?.ToString()
-                };
-                Devices.Add(schedulerDevice);
-            }
-            */
         }
+
+        private IEnumerable<int> Days => Fields.GetValue<JArray>("days").Select(jv => (int) jv).ToList();
+
+        public IEnumerable<SchedulerDevice> Devices
+        {
+            get
+            {
+                var devices = new List<SchedulerDevice>();
+                foreach (var jObj in Fields.GetValue<JArray>("devices"))
+                    devices.Add(new SchedulerDevice
+                    {
+                        DeviceId = jObj["deviceId"]?.ToString(),
+                        Action = jObj["action"]?.ToString()
+                    });
+
+                return devices;
+            }
+        }
+
+        private TimeSpan StartTime => TimeSpan.Parse(Fields.GetValue<string>("start_time"));
+
+        private Dictionary<string, dynamic> Fields { get; }
 
         [BsonElement("_id")]
         [JsonProperty("id")]
-        //[BsonElement("id")]
         public string Id => Fields.GetValue<string>("id");
 
         JObject IDocument.ToJObject => ToJObject();
@@ -116,8 +69,6 @@ namespace iot_api.Scheduler
         public bool ShouldRun(TimeSpan? now = null)
         {
             now ??= DateTime.Now.TimeOfDay.WithoutMilliseconds();
-
-            //Console.WriteLine($"comparing {StartTime} to now {now}");
 
             if (Days != null && Days.Any() && !Days.Contains((int) DateTime.Now.DayOfWeek))
                 return false;

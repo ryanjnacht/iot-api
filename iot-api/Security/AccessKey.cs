@@ -27,6 +27,14 @@ namespace iot_api.Security
                 Id = Guid.NewGuid().ToString().Replace("-", "");
         }
 
+        private bool Admin => Fields.GetValue<bool>("admin");
+        private string Name => Fields.GetValue<string>("name");
+
+        private JArray Devices => Fields.GetValue<JArray>("devices");
+        private JArray Workflows => Fields.GetValue<JArray>("workflows");
+
+        [BsonElement("fields")] private Dictionary<string, dynamic> Fields { get; }
+
         [BsonElement("id")]
         public string Id
         {
@@ -35,14 +43,6 @@ namespace iot_api.Security
         }
 
         JObject IDocument.ToJObject => ToJObject();
-
-        private bool Admin => Fields.GetValue<bool>("admin");
-        private string Name => Fields.GetValue<string>("name");
-
-        private JArray Devices => Fields.GetValue<JArray>("devices");
-        private JArray Workflows => Fields.GetValue<JArray>("workflows");
-
-        [BsonElement("fields")] private Dictionary<string, dynamic> Fields { get; }
 
         public bool CanAccessDevice(string deviceId)
         {
@@ -62,7 +62,7 @@ namespace iot_api.Security
         public JObject ToJObject()
         {
             return JObject.FromObject(Fields);
-            
+
             /*
             JArray devices = null;
             if (JArray.FromObject(Devices).Any())

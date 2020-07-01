@@ -3,7 +3,6 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using iot_api.DataAccess;
 using iot_api.Extensions;
 using iot_api.Repository;
 using iot_api.Scheduler;
@@ -12,7 +11,6 @@ using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json.Linq;
-using Newtonsoft.Json.Schema;
 
 //TODO: end_time could produce second schedule record
 //TODO: schedule workflows
@@ -64,7 +62,7 @@ namespace iot_api.Controllers
             if (json["days"] != null)
                 try
                 {
-                    int[] days = ((JArray) json["days"]!).Select(jv => (int) jv).ToArray();
+                    var days = ((JArray) json["days"]!).Select(jv => (int) jv).ToArray();
                     jObj["days"] = JToken.FromObject(days);
                 }
                 catch (Exception ex)

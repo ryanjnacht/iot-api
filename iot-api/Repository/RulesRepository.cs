@@ -5,7 +5,7 @@ using iot_api.Rules;
 namespace iot_api.Repository
 {
     public static class RulesRepository
-    { 
+    {
         public static void Add(Rule ruleObj)
         {
             // var id = json["id"]?.ToString();
@@ -34,10 +34,7 @@ namespace iot_api.Repository
         {
             var ruleList = new List<Rule>();
 
-            foreach (var doc in DataAccess<Rule>.Get())
-            {
-                ruleList.Add(new Rule(doc));
-            }
+            foreach (var doc in DataAccess<Rule>.Get()) ruleList.Add(new Rule(doc));
 
             return ruleList;
         }

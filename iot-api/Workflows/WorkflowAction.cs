@@ -147,9 +147,11 @@ namespace iot_api.Workflows
                     t = new Thread(Flicker);
                     break;
                 case "turnon":
+                case "on":
                     t = new Thread(TurnOn);
                     break;
                 case "turnoff":
+                case "off":
                     t = new Thread(TurnOff);
                     break;
                 case "toggle":

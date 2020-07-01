@@ -34,10 +34,7 @@ namespace iot_api.Repository
         {
             var workflowList = new List<Workflow>();
 
-            foreach (var doc in DataAccess<Workflow>.Get())
-            {
-                workflowList.Add(new Workflow(doc));
-            }
+            foreach (var doc in DataAccess<Workflow>.Get()) workflowList.Add(new Workflow(doc));
 
             return workflowList;
         }

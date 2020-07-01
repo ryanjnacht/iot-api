@@ -9,8 +9,6 @@ namespace iot_api.Workflows
     {
         private readonly List<WorkflowAction> _workflowActions;
 
-        public string Id { get; }
-
         public Workflow(JToken json)
         {
             Id = json["id"]?.ToString();
@@ -31,6 +29,10 @@ namespace iot_api.Workflows
         }
 
         private string FriendlyName => $"[Workflow ({Id})]";
+
+        public string Id { get; }
+
+        JObject IDocument.ToJObject => ToJObject();
 
         public void Run()
         {
@@ -57,8 +59,6 @@ namespace iot_api.Workflows
             WorkflowThreads.Cancel(Id);
             Console.WriteLine($"{FriendlyName} canceling workflow actions...");
         }
-
-        JObject IDocument.ToJObject => ToJObject();
 
         public JObject ToJObject()
         {

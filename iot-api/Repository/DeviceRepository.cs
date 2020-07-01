@@ -71,10 +71,7 @@ namespace iot_api.Repository
         {
             var deviceList = new List<IDevice>();
 
-            foreach (var doc in DataAccess<IDevice>.Get())
-            {
-                deviceList.Add(Get(doc));
-            }
+            foreach (var doc in DataAccess<IDevice>.Get()) deviceList.Add(Get(doc));
 
             return deviceList;
         }

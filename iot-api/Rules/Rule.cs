@@ -14,9 +14,11 @@ namespace iot_api.Rules
         }
 
         public Dictionary<string, dynamic> Fields { get; set; }
-        public string Id => Fields.GetValue<string>("id");
 
         public string Type => Fields.GetValue<string>("type");
+        public string Id => Fields.GetValue<string>("id");
+
+        JObject IDocument.ToJObject => ToJObject();
 
         public bool ShouldRun()
         {
@@ -31,8 +33,7 @@ namespace iot_api.Rules
                     throw new InvalidOperationException();
             }
         }
-        
-        JObject IDocument.ToJObject => ToJObject();
+
         public JObject ToJObject()
         {
             return JObject.FromObject(Fields);

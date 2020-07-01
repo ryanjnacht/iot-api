@@ -23,17 +23,17 @@ namespace iot_api.Devices
             Fields = json.ToObject<Dictionary<string, dynamic>>();
         }
 
-        [BsonElement("fields")]
-        public Dictionary<string, dynamic> Fields { get; }
+        [BsonElement("fields")] public Dictionary<string, dynamic> Fields { get; }
+
         public string IpAddress => Fields.GetValue<string>("ipAddress");
-        
+
         [BsonElement("id")]
         public string Id
         {
             get => Fields.GetValue<string>("id");
             private set => Fields?.AddOrUpdate("id", value);
         }
-        
+
         public virtual DeviceStatuses DeviceStatus => DeviceStatuses.Unknown;
 
         public virtual void TurnOn()

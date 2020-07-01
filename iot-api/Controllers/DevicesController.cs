@@ -22,7 +22,7 @@ namespace iot_api.Controllers
                 Response.StatusCode = StatusCodes.Status401Unauthorized;
                 return null;
             }
-            
+
             IDevice deviceObj = new Device(body);
             DeviceRepository.Add(deviceObj);
 

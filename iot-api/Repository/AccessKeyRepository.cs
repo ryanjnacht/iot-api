@@ -1,7 +1,6 @@
 using System.Collections.Generic;
 using iot_api.DataAccess;
 using iot_api.Security;
-using Newtonsoft.Json.Linq;
 
 namespace iot_api.Repository
 {

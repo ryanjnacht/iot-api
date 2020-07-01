@@ -1,8 +1,8 @@
-﻿using Microsoft.AspNetCore.Hosting;
-using Microsoft.Extensions.Hosting;
-using System;
+﻿using System;
 using iot_api.Scheduler;
+using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
 
 namespace iot_api
 {
@@ -19,7 +19,7 @@ namespace iot_api
                 Console.WriteLine($"Startup failed: {ex.Message}");
                 return;
             }
-            
+
             CreateHostBuilder(args).Build().Run();
         }
 
