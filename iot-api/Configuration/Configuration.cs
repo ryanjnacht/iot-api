@@ -1,7 +1,5 @@
 using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Resources;
 using iot_api.DataAccess;
 using iot_api.Devices;
 using iot_api.Repository;
@@ -9,7 +7,6 @@ using iot_api.Rules;
 using iot_api.Scheduler;
 using iot_api.Security;
 using iot_api.Workflows;
-using MongoDB.Bson.Serialization;
 using MongoDB.Driver;
 using Newtonsoft.Json.Linq;
 
@@ -17,20 +14,25 @@ namespace iot_api.Configuration
 {
     public static class Configuration
     {
-        public static int WebClientTimeout = 2000;
+        private static int _timeout = 2000;
+        public static readonly int WebClientTimeout = _timeout;
         public static string MongoDatabase = "iot-api";
         public static bool SecurityEnabled = true;
         private static string _mongoHost;
         private static int _mongoPort = 27017;
-        public static bool UseMongo => !string.IsNullOrEmpty(_mongoHost);
         public static int DeviceRetries = 10;
         public static bool UseCache = true;
+        private static int MongoClientTimeout => _timeout / 1000;
+        public static bool UseMongo => !string.IsNullOrEmpty(_mongoHost);
 
         public static MongoUrl MongoDbUrl =>
             new MongoUrlBuilder
             {
                 ApplicationName = $"{MongoDatabase}_app",
-                Server = new MongoServerAddress(_mongoHost, _mongoPort)
+                Server = new MongoServerAddress(_mongoHost, _mongoPort),
+                ConnectTimeout = new TimeSpan(0, 0, MongoClientTimeout),
+                SocketTimeout = new TimeSpan(0, 0, MongoClientTimeout),
+                ServerSelectionTimeout = new TimeSpan(0, 0, MongoClientTimeout)
             }.ToMongoUrl();
 
         public static void Load()
@@ -47,7 +49,7 @@ namespace iot_api.Configuration
                 int.TryParse(Environment.GetEnvironmentVariable("MONGO_PORT"), out _mongoPort);
 
             if (!string.IsNullOrEmpty(Environment.GetEnvironmentVariable("TIMEOUT")))
-                int.TryParse(Environment.GetEnvironmentVariable("TIMEOUT"), out WebClientTimeout);
+                int.TryParse(Environment.GetEnvironmentVariable("TIMEOUT"), out _timeout);
 
             if (!string.IsNullOrEmpty(Environment.GetEnvironmentVariable("SECURITY")))
             {
@@ -80,7 +82,7 @@ namespace iot_api.Configuration
             if (!string.IsNullOrEmpty(Environment.GetEnvironmentVariable("RESET_AUTH")))
                 if (int.TryParse(Environment.GetEnvironmentVariable("RESET_AUTH"), out var val) && val == 1)
                 {
-                    Console.WriteLine($"[Configuration Reset flag set. Clearing access keys");
+                    Console.WriteLine("[Configuration Reset flag set. Clearing access keys");
                     DataAccess<AccessKey>.Clear();
                 }
 
