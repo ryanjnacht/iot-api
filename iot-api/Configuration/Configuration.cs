@@ -96,7 +96,7 @@ namespace iot_api.Configuration
                 Console.WriteLine($"[Configuration] Security is enabled. Default admin access key: {accessKeyObj.Id}");
             }
 
-            if (isTesting)
+            if (isTesting && SecurityEnabled)
             {
                 var accessKeyObj = AccessKeyRepository.Get().First(x => x.IsAdmin());
                 Environment.SetEnvironmentVariable("ACCESSKEY", accessKeyObj.Id);
