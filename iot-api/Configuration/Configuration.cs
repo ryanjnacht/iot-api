@@ -16,6 +16,8 @@ namespace iot_api.Configuration
     {
         private static int _timeout = 2000;
         public static readonly int WebClientTimeout = _timeout;
+        private static int _retryDelay = 1000;
+        public static readonly int WebClientRetryDelay = _retryDelay;
         public static string MongoDatabase = "iot-api";
         public static bool SecurityEnabled = true;
         private static string _mongoHost;
@@ -50,6 +52,9 @@ namespace iot_api.Configuration
 
             if (!string.IsNullOrEmpty(Environment.GetEnvironmentVariable("TIMEOUT")))
                 int.TryParse(Environment.GetEnvironmentVariable("TIMEOUT"), out _timeout);
+
+            if (!string.IsNullOrEmpty(Environment.GetEnvironmentVariable("RETRY_DELAY")))
+                int.TryParse(Environment.GetEnvironmentVariable("RETRY_DELAY"), out _retryDelay);
 
             if (!string.IsNullOrEmpty(Environment.GetEnvironmentVariable("SECURITY")))
             {

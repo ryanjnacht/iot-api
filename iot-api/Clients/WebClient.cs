@@ -2,6 +2,7 @@ using System;
 using System.IO;
 using System.Net;
 using System.Net.Cache;
+using System.Threading;
 
 namespace iot_api.Clients
 {
@@ -65,12 +66,16 @@ namespace iot_api.Clients
                         Console.WriteLine($"[WebClient ({method})] ERROR uri: {uri} error: {wex.Message}");
                         Console.WriteLine(ex.StackTrace);
 
-                        if (wex.Status != WebExceptionStatus.Timeout ||
-                            retries >= Configuration.Configuration.DeviceRetries) throw;
+                        if (retries >= Configuration.Configuration.DeviceRetries) throw;
+
+                        Console.WriteLine(
+                            $"[WebClient ({method})] RETRY sleeping for {Configuration.Configuration.WebClientRetryDelay / 1000}s");
+                        Thread.Sleep(Configuration.Configuration.WebClientRetryDelay);
 
                         retries++;
                         Console.WriteLine(
                             $"[WebClient ({method})] RETRY {retries} of {Configuration.Configuration.DeviceRetries} for uri: {uri}");
+
                         continue;
                     }
 
