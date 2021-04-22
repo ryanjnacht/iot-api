@@ -1,4 +1,5 @@
-﻿using iot_api.Devices;
+﻿using System.Threading.Tasks;
+using iot_api.Devices;
 using iot_api.Repository;
 using iot_api.Security;
 using Microsoft.AspNetCore.Cors;
@@ -41,11 +42,12 @@ namespace iot_api.Controllers
             }
 
             var jArray = new JArray();
-            foreach (var deviceObj in DeviceRepository.Get())
+            Parallel.ForEach(DeviceRepository.Get(), deviceObj =>
             {
                 var jObj = deviceObj.ToJObject();
-                jArray.Add(jObj);
-            }
+                lock (jArray)
+                    jArray.Add(jObj);
+            });
 
             return jArray;
         }
