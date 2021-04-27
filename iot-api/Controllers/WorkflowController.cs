@@ -11,7 +11,7 @@ namespace iot_api.Controllers
     [ApiController]
     [DisableCors]
     [Route("workflows")]
-    public class WorkflowsController : ControllerBase
+    public class WorkflowController : ControllerBase
     {
         [HttpPost]
         public JObject PostWorkflow([FromBody] JObject body, string accessKey = null)

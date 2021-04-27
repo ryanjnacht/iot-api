@@ -12,7 +12,7 @@ namespace iot_api.Controllers
     [DisableCors]
     [ApiController]
     [Route("devices")]
-    public class DevicesController : ControllerBase
+    public class DeviceController : ControllerBase
     {
         // POST device
         [HttpPost]

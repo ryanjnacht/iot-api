@@ -9,8 +9,8 @@ namespace iot_api.Controllers
 {
     [ApiController]
     [DisableCors]
-    [Route("auth")]
-    public class AuthController : ControllerBase
+    [Route("accessKeys")]
+    public class AccessKeyController : ControllerBase
     {
         [HttpPost]
         public JObject CreateAccessKey([FromBody] JObject body, string accessKey = null)

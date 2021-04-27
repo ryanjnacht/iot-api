@@ -11,7 +11,7 @@ namespace iot_api.Controllers
     [ApiController]
     [DisableCors]
     [Route("rules")]
-    public class RulesController : ControllerBase
+    public class RuleController : ControllerBase
     {
         [HttpGet]
         public JArray GetRules(string accessKey = null)

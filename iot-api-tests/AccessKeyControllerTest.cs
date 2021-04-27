@@ -80,7 +80,7 @@ namespace iot_api_tests
             };
 
             var payload = new StringContent(json.ToString(), Encoding.UTF8, "application/json");
-            var response = await _client.PostAsync($"auth?accessKey={_defaultAccessKey}", payload);
+            var response = await _client.PostAsync($"accessKeys?accessKey={_defaultAccessKey}", payload);
             response.EnsureSuccessStatusCode();
 
             var responseString = await response.Content.ReadAsStringAsync();
@@ -108,7 +108,7 @@ namespace iot_api_tests
             };
 
             var payload = new StringContent(json.ToString(), Encoding.UTF8, "application/json");
-            var response = await _client.PostAsync($"auth?accessKey={_defaultAccessKey}", payload);
+            var response = await _client.PostAsync($"accessKeys?accessKey={_defaultAccessKey}", payload);
             response.EnsureSuccessStatusCode();
 
             var responseString = await response.Content.ReadAsStringAsync();
@@ -120,7 +120,7 @@ namespace iot_api_tests
             responseObj["name"]?.ToString().Should().Be(json["name"]?.ToString());
 
             //remove access key
-            response = await _client.DeleteAsync($"auth/{accessKey}?accessKey={_defaultAccessKey}");
+            response = await _client.DeleteAsync($"accessKeys/{accessKey}?accessKey={_defaultAccessKey}");
             response.EnsureSuccessStatusCode();
         }
 
@@ -176,7 +176,7 @@ namespace iot_api_tests
             };
 
             var payload = new StringContent(json.ToString(), Encoding.UTF8, "application/json");
-            var response = await _client.PostAsync($"auth?accessKey={_defaultAccessKey}", payload);
+            var response = await _client.PostAsync($"accessKeys?accessKey={_defaultAccessKey}", payload);
             response.EnsureSuccessStatusCode();
 
             var responseString = await response.Content.ReadAsStringAsync();
