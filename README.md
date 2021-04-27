@@ -39,7 +39,7 @@ docker run -p 8088:80 -e MONGO_HOST=10.0.0.5 iot-api:latest
 
 ## API
 
-### {url}/auth
+### {url}/accessKeys
 
 - id (string): randomly generated
 - name (string): friendly name
@@ -48,6 +48,7 @@ docker run -p 8088:80 -e MONGO_HOST=10.0.0.5 iot-api:latest
 - workflows: (string[]): array of workflowIds that this access key should have access to
 
 Examples:
+
 ```
 //default admin key
 {
@@ -56,7 +57,7 @@ Examples:
     "admin": true,
     "devices": null,
     "workflows": null
-  }
+}
   
 //restricted to device
 {
