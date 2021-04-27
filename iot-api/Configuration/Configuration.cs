@@ -87,7 +87,7 @@ namespace iot_api.Configuration
             if (!string.IsNullOrEmpty(Environment.GetEnvironmentVariable("RESET_AUTH")))
                 if (int.TryParse(Environment.GetEnvironmentVariable("RESET_AUTH"), out var val) && val == 1)
                 {
-                    Console.WriteLine("[Configuration Reset flag set. Clearing access keys");
+                    Console.WriteLine("[auth reset flag set! clearing access keys!");
                     DataAccess<AccessKey>.Clear();
                 }
 
