@@ -1,4 +1,5 @@
 using System;
+using System.Globalization;
 using FluentAssertions;
 using iot_api.Rules;
 using Newtonsoft.Json.Linq;
@@ -13,8 +14,8 @@ namespace iot_api_tests
         {
             var ruleId = "TimeRuleShouldRun";
 
-            var startTime = DateTime.Now.AddMinutes(-5).ToString("t");
-            var endTime = DateTime.Now.AddMinutes(5).ToString("t");
+            var startTime = DateTime.Now.AddMinutes(-5).ToString("HH:mm");
+            var endTime = DateTime.Now.AddMinutes(5).ToString("HH:mm");
 
             var json = new JObject {{"id", ruleId}, {"type", "time"}, {"start_time", startTime}, {"end_time", endTime}};
 
@@ -27,8 +28,9 @@ namespace iot_api_tests
         {
             var ruleId = "TimeRuleShouldNotRun";
 
-            var startTime = DateTime.Now.AddMinutes(-5).ToString("t");
-            var endTime = DateTime.Now.AddMinutes(-1).ToString("t");
+            var startTime = DateTime.Now.AddMinutes(-5).ToString("HH:mm");
+            var endTime = DateTime.Now.AddMinutes(-1).ToString("HH:mm");
+            Console.WriteLine($"endTime: {endTime}");
 
             var json = new JObject {{"id", ruleId}, {"type", "time"}, {"start_time", startTime}, {"end_time", endTime}};
 
