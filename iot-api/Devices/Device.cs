@@ -72,6 +72,9 @@ namespace iot_api.Devices
             if (jObj["deviceStatus"] != null)
                 jObj.Remove("deviceStatus");
 
+            if (jObj["disabled"] != null)
+                jObj.Remove("disabled");
+
             jObj.Add("deviceStatus", DeviceStatus.GetDescription());
             return jObj;
         }
