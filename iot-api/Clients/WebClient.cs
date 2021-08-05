@@ -32,32 +32,32 @@ namespace iot_api.Clients
                 if (method == "PUT") webReq.Method = WebRequestMethods.Http.Put;
                 if (method == "POST") webReq.Method = WebRequestMethods.Http.Post;
                 if (method == "DELETE") webReq.Method = method;
+
                 try
                 {
-                    using (var webResp = webReq.GetResponse())
+                    using var webResp = webReq.GetResponse();
+                    string webResponse;
+
+                    using (var dataStream = webResp.GetResponseStream())
                     {
-                        string webResponse;
-                        using (var dataStream = webResp.GetResponseStream())
+                        if (dataStream == null)
+                            throw new WebException("Fail to retrieve response stream");
+
+                        using (var dataReader = new StreamReader(dataStream))
                         {
-                            if (dataStream == null)
-                                throw new WebException("Fail to retrieve response stream");
+                            webResponse = dataReader.ReadToEnd();
+                            dataReader.Close();
 
-                            using (var dataReader = new StreamReader(dataStream))
-                            {
-                                webResponse = dataReader.ReadToEnd();
-                                dataReader.Close();
-
-                                webResp.Close();
-                                webResp.Dispose();
-                            }
-
-                            dataStream.Flush();
+                            webResp.Close();
+                            webResp.Dispose();
                         }
 
-                        webResp.Close();
-
-                        return string.IsNullOrEmpty(webResponse) ? null : webResponse;
+                        dataStream.Flush();
                     }
+
+                    webResp.Close();
+
+                    return string.IsNullOrEmpty(webResponse) ? null : webResponse;
                 }
                 catch (Exception ex)
                 {

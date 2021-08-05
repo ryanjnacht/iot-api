@@ -6,7 +6,7 @@ namespace iot_api.DataAccess
 {
     public static class DataAccess<T> where T : IDocument
     {
-        public static List<JObject> _documentCache;
+        private static List<JObject> _documentCache;
 
         public static void Initialize()
         {
@@ -34,7 +34,7 @@ namespace iot_api.DataAccess
             return MongoProvider<T>.GetRecord(id);
         }
 
-        public static List<JObject> Get()
+        public static IEnumerable<JObject> Get()
         {
             if (Configuration.Configuration.UseCache || !Configuration.Configuration.UseMongo)
                 return _documentCache;

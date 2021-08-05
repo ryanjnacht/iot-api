@@ -7,8 +7,8 @@ namespace iot_api.Repository
 {
     public static class DeviceRepository
     {
-        private static readonly string[] AllowedProperties = {"id", "type", "ipAddress"};
-        private static readonly string[] SupportedTypes = {"dummy", "tasmota", "hs1xx", "hs100", "hs110"};
+        //private static readonly string[] AllowedProperties = {"id", "type", "ipAddress"};
+        //private static readonly string[] SupportedTypes = {"dummy", "tasmota", "hs1xx", "hs100", "hs110"};
 
         public static void Add(IDevice deviceObj)
         {
@@ -49,21 +49,25 @@ namespace iot_api.Repository
         {
             var type = json["type"]?.ToString().ToLower();
 
-            if (type == "tasmota")
-                return new Tasmota(json);
-
-            if (type == "hs1xx" || type == "hs100" || type == "hs110")
-                return new TPLinkSmartPlugHS1xx(json);
-
-            return new Device(json);
+            switch (type)
+            {
+                case "tasmota":
+                    return new Tasmota(json);
+                case "hs1xx":
+                case "hs100":
+                case "hs110":
+                    return new TPLinkSmartPlugHS1xx(json);
+                default:
+                    return new Device(json);
+            }
         }
 
         public static IDevice Get(string id)
         {
             var json = DataAccess<IDevice>.Get(id);
+
             if (json == null) return null;
 
-            //var json = JObject.FromObject();
             return Get(json);
         }
 

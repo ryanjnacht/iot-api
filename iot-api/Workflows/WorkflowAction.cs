@@ -26,17 +26,18 @@ namespace iot_api.Workflows
                     _workflowRules.Add(new WorkflowActionRule(j));
 
             _devices = new List<IDevice>();
-            if (Fields.GetValue<JArray>("devices") != null)
-                foreach (var j in Fields.GetValue<JArray>("devices"))
-                {
-                    var deviceId = j["id"]?.ToString();
-                    var deviceObj = DeviceRepository.Get(deviceId);
+            if (Fields.GetValue<JArray>("devices") == null) return;
 
-                    if (deviceObj == default(IDevice))
-                        throw new Exception($"{FriendlyName} Could not find the workflow action device: '{deviceId}'");
+            foreach (var j in Fields.GetValue<JArray>("devices"))
+            {
+                var deviceId = j["id"]?.ToString();
+                var deviceObj = DeviceRepository.Get(deviceId);
 
-                    _devices.Add(deviceObj);
-                }
+                if (deviceObj == default(IDevice))
+                    throw new Exception($"{FriendlyName} Could not find the workflow action device: '{deviceId}'");
+
+                _devices.Add(deviceObj);
+            }
         }
 
         private string FriendlyName => $"[Workflow ({_workflowId}), Workflow Action ({Id.ToLower()})]";

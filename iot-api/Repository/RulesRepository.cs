@@ -30,7 +30,7 @@ namespace iot_api.Repository
             return new Rule(json);
         }
 
-        public static List<Rule> Get()
+        public static IEnumerable<Rule> Get()
         {
             var ruleList = new List<Rule>();
 

@@ -30,7 +30,7 @@ namespace iot_api.Repository
             return new Workflow(json);
         }
 
-        public static List<Workflow> Get()
+        public static IEnumerable<Workflow> Get()
         {
             var workflowList = new List<Workflow>();
 

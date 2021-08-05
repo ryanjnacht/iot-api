@@ -68,17 +68,14 @@ namespace iot_api.Controllers
         [HttpGet("{id}")]
         public JObject GetWorkflow(string id, string accessKey = null)
         {
-            if (!AccessKeyHelper.CanAccessWorkflow(accessKey, id))
-            {
-                Response.StatusCode = StatusCodes.Status401Unauthorized;
-                return null;
-            }
+            if (AccessKeyHelper.CanAccessWorkflow(accessKey, id)) return WorkflowRepository.Get(id).ToJObject();
 
-            return WorkflowRepository.Get(id).ToJObject();
+            Response.StatusCode = StatusCodes.Status401Unauthorized;
+            return null;
         }
 
         [HttpGet("{*url}", Order = int.MaxValue)]
-        public JObject CatchAll(string accessKey = null)
+        public JObject CatchAll(string url, string accessKey = null)
         {
             var route = Request.Path.Value.ToLower().Split("/");
             var workflowId = route[2];

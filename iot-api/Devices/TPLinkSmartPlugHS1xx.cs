@@ -68,6 +68,12 @@ namespace iot_api.Devices
                 case DeviceStatuses.Off:
                     TurnOn();
                     break;
+                case DeviceStatuses.Unavailable:
+                    break;
+                case DeviceStatuses.Unknown:
+                    break;
+                default:
+                    throw new ArgumentOutOfRangeException();
             }
         }
 
@@ -93,14 +99,15 @@ namespace iot_api.Devices
                 if (string.IsNullOrEmpty(relayState))
                     return DeviceStatuses.Unknown;
 
-                int i;
-
-                if (int.TryParse(relayState, out i))
+                if (int.TryParse(relayState, out var i))
                 {
-                    if (i == 0)
-                        return DeviceStatuses.Off;
-                    if (i == 1)
-                        return DeviceStatuses.On;
+                    switch (i)
+                    {
+                        case 0:
+                            return DeviceStatuses.Off;
+                        case 1:
+                            return DeviceStatuses.On;
+                    }
                 }
             }
             catch (Exception ex)

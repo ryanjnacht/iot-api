@@ -18,7 +18,7 @@ namespace iot_api.Scheduler
 
         protected override async Task ExecuteAsync(CancellationToken stoppingToken)
         {
-            _logger.LogInformation("Worker started at: {time}", DateTime.Now);
+            _logger.LogInformation("Worker started at: {Time}", DateTime.Now);
 
             while (!stoppingToken.IsCancellationRequested)
             {
@@ -27,7 +27,7 @@ namespace iot_api.Scheduler
 
                 Parallel.ForEach(ScheduleRepository.Get().FindAll(x => x.ShouldRun(now)), scheduleObj =>
                 {
-                    _logger.LogInformation($"Schedule {scheduleObj.Id} running at: {DateTime.Now}");
+                    _logger.LogInformation("Schedule {ScheduleId} running at: {Time}", scheduleObj.Id, DateTime.Now);
 
                     Parallel.ForEach(scheduleObj.Devices, schedulerDeviceObj =>
                     {
@@ -40,24 +40,29 @@ namespace iot_api.Scheduler
                                 if (schedulerDeviceObj.Action == null)
                                     continue;
 
-                                if (schedulerDeviceObj.Action.ToLower() == "on" ||
-                                    schedulerDeviceObj.Action.ToLower() == "turnon")
-                                    deviceObj.TurnOn();
-
-                                if (schedulerDeviceObj.Action.ToLower() == "off" ||
-                                    schedulerDeviceObj.Action.ToLower() == "turnoff")
-                                    deviceObj.TurnOff();
-
-                                if (schedulerDeviceObj.Action.ToLower() == "toggle")
-                                    deviceObj.Toggle();
+                                switch (schedulerDeviceObj.Action.ToLower())
+                                {
+                                    case "on":
+                                    case "turnon":
+                                        deviceObj.TurnOn();
+                                        break;
+                                    case "off":
+                                    case "turnoff":
+                                        deviceObj.TurnOff();
+                                        break;
+                                    case "toggle":
+                                        deviceObj.Toggle();
+                                        break;
+                                }
 
                                 return;
                             }
                             catch (Exception ex)
                             {
                                 _logger.LogError(
-                                    $"scheduleId: {scheduleObj.Id}, deviceId: {schedulerDeviceObj.DeviceId}, " +
-                                    $"attempt: {retry}/{Configuration.Configuration.DeviceRetries}, error: {ex.Message}");
+                                    "scheduleId: {ScheduleId}, deviceId: {DeviceId}, attempt: {Retry}/{MaxRetries}, error: {Exception}",
+                                    scheduleObj.Id, schedulerDeviceObj.DeviceId, retry.ToString(), 
+                                    Configuration.Configuration.DeviceRetries, ex.Message);
 
                                 if (retry >= Configuration.Configuration.DeviceRetries) return;
 

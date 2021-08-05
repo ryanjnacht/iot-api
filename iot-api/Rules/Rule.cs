@@ -13,9 +13,8 @@ namespace iot_api.Rules
             Fields = json.ToObject<Dictionary<string, dynamic>>();
         }
 
-        public Dictionary<string, dynamic> Fields { get; set; }
+        private Dictionary<string, dynamic> Fields { get; }
 
-        public string Type => Fields.GetValue<string>("type");
         public string Id => Fields.GetValue<string>("id");
 
         JObject IDocument.ToJObject => ToJObject();

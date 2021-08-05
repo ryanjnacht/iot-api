@@ -20,10 +20,5 @@ namespace iot_api.Workflows
         public Rule Rule => RulesRepository.Get(RuleId);
 
         private Dictionary<string, dynamic> Fields { get; }
-
-        public JObject ToJObject()
-        {
-            return JObject.FromObject(Fields);
-        }
     }
 }
