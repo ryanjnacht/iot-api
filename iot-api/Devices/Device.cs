@@ -12,6 +12,7 @@ namespace iot_api.Devices
     {
         public enum DeviceStatuses
         {
+            [Description("disabled")] Disabled,
             [Description("on")] On,
             [Description("off")] Off,
             [Description("unavailable")] Unavailable,
@@ -23,7 +24,18 @@ namespace iot_api.Devices
             Fields = json.ToObject<Dictionary<string, dynamic>>();
         }
 
+        public virtual DeviceStatuses GetStatus()
+        {
+            return DeviceStatuses.Unknown;
+        }
+
         [BsonElement("fields")] public Dictionary<string, dynamic> Fields { get; }
+
+        public bool Disabled
+        {
+            get => Fields.GetValue<bool>("disabled");
+            set => Fields.AddOrUpdate("disabled", value);
+        }
 
         public string IpAddress => Fields.GetValue<string>("ipAddress");
 
@@ -34,7 +46,7 @@ namespace iot_api.Devices
             private set => Fields?.AddOrUpdate("id", value);
         }
 
-        public virtual DeviceStatuses DeviceStatus => DeviceStatuses.Unknown;
+        public DeviceStatuses DeviceStatus => GetStatus();
 
         public virtual void TurnOn()
         {

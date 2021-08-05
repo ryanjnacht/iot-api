@@ -138,6 +138,54 @@ namespace iot_api.Controllers
             return deviceObj.ToJObject();
         }
 
+        // GET device disable
+        [HttpGet("{id}/disable")]
+        public JObject GetDisableDevice(string id, string accessKey = null)
+        {
+            if (!AccessKeyHelper.CanAccessDevice(accessKey, id))
+            {
+                Response.StatusCode = StatusCodes.Status401Unauthorized;
+                return null;
+            }
+
+            var deviceObj = DeviceRepository.Get(id);
+
+            if (deviceObj == null)
+            {
+                Response.StatusCode = StatusCodes.Status404NotFound;
+                return null;
+            }
+
+            deviceObj.Disabled = true;
+            DeviceRepository.Delete(deviceObj);
+            DeviceRepository.Add(deviceObj);
+            return deviceObj.ToJObject();
+        }
+
+        // GET device enable
+        [HttpGet("{id}/enable")]
+        public JObject GetEnableDevice(string id, string accessKey = null)
+        {
+            if (!AccessKeyHelper.CanAccessDevice(accessKey, id))
+            {
+                Response.StatusCode = StatusCodes.Status401Unauthorized;
+                return null;
+            }
+
+            var deviceObj = DeviceRepository.Get(id);
+
+            if (deviceObj == null)
+            {
+                Response.StatusCode = StatusCodes.Status404NotFound;
+                return null;
+            }
+
+            deviceObj.Disabled = false;
+            DeviceRepository.Delete(deviceObj);
+            DeviceRepository.Add(deviceObj);
+            return deviceObj.ToJObject();
+        }
+
         [HttpDelete("{id}")]
         public void DeleteDevice(string id, string accessKey = null)
         {

@@ -10,9 +10,10 @@ namespace iot_api.Devices
     public interface IDevice : IDocument
     {
         [BsonIgnore] string IpAddress { get; }
-
+        [BsonIgnore] bool Disabled { get; set; }
         [BsonIgnore] Device.DeviceStatuses DeviceStatus { get; }
 
+        Device.DeviceStatuses GetStatus();
         Dictionary<string, dynamic> Fields { get; }
         void TurnOn();
         void TurnOff();

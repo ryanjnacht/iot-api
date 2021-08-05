@@ -12,8 +12,8 @@ namespace iot_api_tests
         {
             Environment.SetEnvironmentVariable("ASPNETCORE_ENVIRONMENT", "Test");
 
-            //if (string.IsNullOrEmpty(Environment.GetEnvironmentVariable("MONGO_HOST")))
-                //Environment.SetEnvironmentVariable("MONGO_HOST", "localhost");
+            if (string.IsNullOrEmpty(Environment.GetEnvironmentVariable("MONGO_HOST")))
+                Environment.SetEnvironmentVariable("MONGO_HOST", "localhost");
 
             if (string.IsNullOrEmpty(Environment.GetEnvironmentVariable("MONGO_DB")))
                 Environment.SetEnvironmentVariable("MONGO_DB", "iot-api-test");

@@ -16,8 +16,6 @@ namespace iot_api.Devices
             if (port != 0) _port = port;
         }
 
-        public override DeviceStatuses DeviceStatus => GetStatus();
-
         public override void TurnOn()
         {
             Console.WriteLine($"[HS1xx ({Id})] - TurnOn");
@@ -77,9 +75,11 @@ namespace iot_api.Devices
             }
         }
 
-        private DeviceStatuses GetStatus()
+        public override DeviceStatuses GetStatus()
         {
             Console.WriteLine($"[HS1xx ({Id})] - GetStatus");
+
+            if (Disabled) return DeviceStatuses.Disabled;
 
             var cmd = JsonConvert.SerializeObject(new
             {

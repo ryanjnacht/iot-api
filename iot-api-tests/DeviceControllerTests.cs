@@ -61,6 +61,32 @@ namespace iot_api_tests
             deviceList.Count.Should().BeGreaterThan(0);
             deviceList.Any(token => token["id"]?.ToString() == deviceId).Should().BeTrue();
 
+            //disable device
+            response = await _client.GetAsync($"devices/{deviceId}/disable");
+            response.EnsureSuccessStatusCode();
+
+            //get list of devices
+            response = await _client.GetAsync("devices");
+            response.EnsureSuccessStatusCode();
+            responseString = await response.Content.ReadAsStringAsync();
+            deviceList = JArray.Parse(responseString);
+            deviceList.Any(token =>
+                    token["id"]?.ToString() == deviceId && token["deviceStatus"]?.ToString() == "disabled").Should()
+                .BeTrue();
+
+            //enable device
+            response = await _client.GetAsync($"devices/{deviceId}/enable");
+            response.EnsureSuccessStatusCode();
+
+            //get list of devices
+            response = await _client.GetAsync("devices");
+            response.EnsureSuccessStatusCode();
+            responseString = await response.Content.ReadAsStringAsync();
+            deviceList = JArray.Parse(responseString);
+            deviceList.Any(token =>
+                    token["id"]?.ToString() == deviceId && token["deviceStatus"]?.ToString() != "disabled").Should()
+                .BeTrue();
+
             //remove device
             response = await _client.DeleteAsync($"devices/{deviceId}");
             response.EnsureSuccessStatusCode();

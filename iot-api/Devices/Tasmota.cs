@@ -10,8 +10,6 @@ namespace iot_api.Devices
         {
         }
 
-        public override DeviceStatuses DeviceStatus => GetStatus();
-
         public override void TurnOn()
         {
             Console.WriteLine($"[Tasmota ({Id})] - TurnOn");
@@ -36,9 +34,11 @@ namespace iot_api.Devices
             WebClient.Get(uri);
         }
 
-        private DeviceStatuses GetStatus()
+        public override DeviceStatuses GetStatus()
         {
             Console.WriteLine($"[Tasmota ({Id})] - GetStatus");
+
+            if (Disabled) return DeviceStatuses.Disabled;
 
             var uri = $"http://{IpAddress}/cm?cmnd=status";
 
