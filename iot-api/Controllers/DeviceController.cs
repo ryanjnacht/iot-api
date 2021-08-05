@@ -89,6 +89,12 @@ namespace iot_api.Controllers
                 return null;
             }
 
+            if (deviceObj.Disabled)
+            {
+                Response.StatusCode = StatusCodes.Status409Conflict;
+                return deviceObj.ToJObject();
+            }
+
             deviceObj.TurnOn();
             return deviceObj.ToJObject();
         }
@@ -112,6 +118,12 @@ namespace iot_api.Controllers
                 return null;
             }
 
+            if (deviceObj.Disabled)
+            {
+                Response.StatusCode = StatusCodes.Status409Conflict;
+                return deviceObj.ToJObject();
+            }
+
             deviceObj.TurnOff();
             return deviceObj.ToJObject();
         }
@@ -132,6 +144,12 @@ namespace iot_api.Controllers
             {
                 Response.StatusCode = StatusCodes.Status404NotFound;
                 return null;
+            }
+
+            if (deviceObj.Disabled)
+            {
+                Response.StatusCode = StatusCodes.Status409Conflict;
+                return deviceObj.ToJObject();
             }
 
             deviceObj.Toggle();

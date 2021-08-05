@@ -127,6 +127,8 @@ Example:
 - on / turnOn
 - off / turnOff
 - toggle
+- disable
+- enable
 
 ```
 curl -v {url}/devices/{deviceId}/on?accessKey={accessKey}
