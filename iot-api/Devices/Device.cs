@@ -38,6 +38,7 @@ namespace iot_api.Devices
         }
 
         public string IpAddress => Fields.GetValue<string>("ipAddress");
+        public string Type => Fields.GetValue<string>("type");
 
         [BsonElement("id")]
         public string Id
@@ -63,20 +64,24 @@ namespace iot_api.Devices
             throw new NotImplementedException();
         }
 
-        JObject IDocument.ToJObject => ToJObject();
+        JObject IDocument.ToJObject => new JObject
+        {
+            {"id", Id},
+            {"ipAddress", IpAddress},
+            {"type", Type},
+            {"disabled", Disabled}
+        };
 
         public JObject ToJObject()
         {
-            var jObj = JObject.FromObject(Fields);
-
-            if (jObj["deviceStatus"] != null)
-                jObj.Remove("deviceStatus");
-
-            if (jObj["disabled"] != null)
-                jObj.Remove("disabled");
-
-            jObj.Add("deviceStatus", DeviceStatus.GetDescription());
-            return jObj;
+            return
+                new JObject
+                {
+                    {"id", Id},
+                    {"ipAddress", IpAddress},
+                    {"type", Type},
+                    {"deviceStatus", DeviceStatus.GetDescription()}
+                };
         }
     }
 }
