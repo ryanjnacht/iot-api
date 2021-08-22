@@ -51,7 +51,7 @@ namespace iot_api.Controllers
             if (RulesRepository.Get(ruleId) != null)
             {
                 Response.StatusCode = StatusCodes.Status409Conflict;
-                return new JObject { { "error" }, { "a rule with this id already exists" } };
+                return new JObject { { "error", "a rule with this id already exists" } };
             }
 
             var ruleObj = new Rule(body);
