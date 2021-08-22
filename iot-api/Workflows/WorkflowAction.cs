@@ -64,7 +64,7 @@ namespace iot_api.Workflows
             foreach (var deviceObj in _devices)
                 deviceArrayObj.Add(new JObject
                 {
-                    {"id", deviceObj.Id}
+                    { "id", deviceObj.Id }
                 });
 
             jObj.Add("devices", deviceArrayObj);
@@ -77,7 +77,8 @@ namespace iot_api.Workflows
             foreach (var ruleObj in _workflowRules)
                 ruleArrayObj.Add(new JObject
                 {
-                    {"id", ruleObj.RuleId}
+                    { "id", ruleObj.RuleId },
+                    { "condition", ruleObj.Condition }
                 });
 
             jObj.Add("rules", ruleArrayObj);
