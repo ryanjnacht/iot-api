@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using iot_api.DataAccess;
 using iot_api.Rules;
+using Newtonsoft.Json.Linq;
 
 namespace iot_api.Repository
 {
@@ -27,6 +28,7 @@ namespace iot_api.Repository
         public static Rule Get(string id)
         {
             var json = DataAccess<Rule>.Get(id);
+            if (json == default(JObject)) return null;
             return new Rule(json);
         }
 

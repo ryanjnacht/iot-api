@@ -41,6 +41,19 @@ namespace iot_api.Controllers
                 return null;
             }
 
+            var ruleId = body["id"]?.ToString();
+            if (string.IsNullOrEmpty(ruleId))
+            {
+                Response.StatusCode = StatusCodes.Status400BadRequest;
+                return new JObject { { "error", "missing id" } };
+            }
+
+            if (RulesRepository.Get(ruleId) != null)
+            {
+                Response.StatusCode = StatusCodes.Status409Conflict;
+                return new JObject { { "error" }, { "a rule with this id already exists" } };
+            }
+
             var ruleObj = new Rule(body);
             RulesRepository.Add(ruleObj);
             return ruleObj.ToJObject();
